@@ -4,12 +4,24 @@
 package work.chiro.egui;
 
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 
 public class App {
     public static void main(String[] args) {
         String pwd = System.getProperty("user.dir");
-        System.out.printf("pwd: %s", pwd);
-        LibEGui egui = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
-        System.out.println("egui.test(1, 2) = " + egui.test(1, 2));
+        System.out.printf("pwd: %s\n", pwd);
+        LibEGui eguiLib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
+        System.out.println("eguiLib.test(1, 2) = " + eguiLib.test(1, 2));
+
+        LibEGui.MeshPainterHandler meshHandler = new LibEGui.MeshPainterHandler() {
+            @Override
+            public void callback(Pointer indices, int indicesLen, Pointer vertices, int verticesLen, Boolean textureManaged, Long textureId) {
+                System.out.println("callback!");
+            }
+        };
+        Pointer egui = eguiLib.egui_create(meshHandler);
+        System.out.println("egui = " + egui);
+        eguiLib.egui_run(egui);
+        System.out.println("meshHandler = " + meshHandler);
     }
 }

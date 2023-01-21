@@ -1,7 +1,7 @@
 use egui::epaint::Vertex;
 use egui::{Mesh, TextureId};
 
-pub type MeshPainterHandler = *const fn(
+pub type MeshPainterHandler = *const extern "C" fn(
     indices: *const u32,
     indices_len: usize,
     // vertices: *const u32,
@@ -11,11 +11,12 @@ pub type MeshPainterHandler = *const fn(
     texture_id: u64,
 ) -> ();
 
-pub struct Painter {
+#[derive(Debug)]
+pub struct EguiPainter {
     pub(crate) handler: MeshPainterHandler,
 }
 
-impl Painter {
+impl EguiPainter {
     pub fn new(handler: MeshPainterHandler) -> Self {
         Self { handler }
     }
