@@ -10,4 +10,4 @@ egui = "0.20.1"
 
 [lib]
 name = "egui"
-crate-type = ["dylib", "rlib"]
+crate-type = ["cdylib", "rlib"]
