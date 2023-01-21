@@ -3,12 +3,13 @@
  */
 package work.chiro.egui;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import com.sun.jna.Native;
 
+public class App {
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        String pwd = System.getProperty("user.dir");
+        System.out.printf("pwd: %s", pwd);
+        LibEGui egui = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
+        System.out.println("egui.test(1, 2) = " + egui.test(1, 2));
     }
 }
