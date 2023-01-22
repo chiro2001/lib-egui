@@ -3,13 +3,95 @@
  */
 package work.chiro.egui;
 
+import com.jogamp.opengl.GL2;
+import com.jogamp.opengl.GLCapabilities;
+import com.jogamp.opengl.GLProfile;
+import com.jogamp.opengl.awt.GLCanvas;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
-import java.util.Arrays;
+import javax.swing.*;
 
-public class App {
-    public static void main(String[] args) throws InterruptedException {
+public class App implements LibEGui.PainterHandler {
+    JFrame frame = new JFrame();
+    // Canvas canvas = new Canvas();
+    LibEGui lib;
+    int width = 640;
+    int height = 480;
+    Thread thread = null;
+    Pointer ui;
+    GLCanvas glcanvas;
 
+    public App() {
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(width, height);
+        // frame.add(canvas);
+
+        //getting the capabilities object of GL2 profile
+        GLProfile profile = GLProfile.get(GLProfile.GL2);
+        GLCapabilities capabilities = new GLCapabilities(profile);
+        // The canvas
+        glcanvas = new GLCanvas(capabilities);
+        // frame.getContentPane().add(glcanvas);
+        frame.add(glcanvas);
+        // glcanvas.getGL();
+
+        String pwd = System.getProperty("user.dir");
+        lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
+        ui = lib.egui_create(this);
+        lib.egui_run(ui);
+    }
+
+    public void loop() {
+        // Graphics graphics = frame.getGraphics();
+        System.out.println("loop start");
+        while (true) {
+            GL2 gl = glcanvas.getGL().getGL2();
+            gl.glClear (GL2.GL_COLOR_BUFFER_BIT |  GL2.GL_DEPTH_BUFFER_BIT );
+            // Clear The Screen And The Depth Buffer
+            gl.glLoadIdentity();  // Reset The View
+            //triangle rotation
+            // gl.glRotatef( rtri, 0.0f, 1.0f, 0.0f );
+            // Drawing Using Triangles
+            gl.glBegin( GL2.GL_TRIANGLES );
+            gl.glColor3f( 1.0f, 0.0f, 0.0f );   // Red
+            gl.glVertex3f( 0.5f,0.7f,0.0f );    // Top
+            gl.glColor3f( 0.0f,1.0f,0.0f );     // blue
+            gl.glVertex3f( -0.2f,-0.50f,0.0f ); // Bottom Left
+            gl.glColor3f( 0.0f,0.0f,1.0f );     // green
+            gl.glVertex3f( 0.5f,-0.5f,0.0f );   // Bottom Right
+            gl.glEnd();
+            gl.glFlush();
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                break;
+            }
+        }
+    }
+
+    public void run() {
+        // frame.setLayout(null);
+        frame.setVisible(true);
+        // thread = new Thread(this::loop);
+        // thread.setDaemon(true);
+        // thread.start();
+        // try {
+        //     Thread.sleep(3000);
+        // } catch (InterruptedException e) {
+        //     throw new RuntimeException(e);
+        // }
+        // thread.interrupt();
+    }
+
+    public static void main(String[] args) {
+        App app = new App();
+        app.run();
+    }
+
+    @Override
+    public void callback(float minX, float minY, float maxX, float maxY, Pointer indices, int indicesLen, Pointer vertices, int verticesLen, Boolean textureManaged, Long textureId) {
+        // System.out.printf("callback(%f, %f, %f, %f)\n", minX, minY, maxX, maxY);
+        // System.out.printf("callback([: %d], [: %d])\n", indicesLen, verticesLen);
     }
 }

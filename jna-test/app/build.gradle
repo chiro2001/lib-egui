@@ -26,6 +26,19 @@ dependencies {
     // https://mvnrepository.com/artifact/net.java.dev.jna/jna
     implementation 'net.java.dev.jna:jna:5.13.0'
 
+//    // https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all-main
+//     implementation 'org.jogamp.jogl:jogl-all-main:2.3.2'
+//
+//    // https://mvnrepository.com/artifact/org.jogamp.jogl/jogl-all
+//     implementation 'org.jogamp.jogl:jogl-all:2.3.2'
+//
+//    // https://mvnrepository.com/artifact/org.jogamp.jogl/jogl
+//    implementation 'org.jogamp.jogl:jogl:2.3.2'
+//
+//    // https://mvnrepository.com/artifact/quil/jogl-all-fat
+//    implementation 'quil:jogl-all-fat:2.4.0-RC'
+
+    implementation files("libs/jogamp-fat.jar")
 }
 
 application {
