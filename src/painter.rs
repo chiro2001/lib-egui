@@ -13,11 +13,15 @@ pub type MeshPainterHandler = extern "C" fn(
 #[derive(Debug)]
 pub struct EguiPainter {
     pub(crate) handler: MeshPainterHandler,
+    pub(crate) pixels_per_point: f32,
 }
 
 impl EguiPainter {
     pub fn new(handler: MeshPainterHandler) -> Self {
-        Self { handler }
+        Self {
+            handler,
+            pixels_per_point: 1.0,
+        }
     }
     pub fn paint_mesh(&self, mesh: &Mesh) {
         let indices_len = mesh.indices.len();
