@@ -46,6 +46,17 @@ pub unsafe extern "C" fn egui_run(g: *const Egui) {
     println!("handler: {:?}", handler);
 }
 
+#[no_mangle]
+// pub unsafe extern "C" fn call_void(f: *const fn() -> ()) {
+// pub unsafe extern "C" fn call_void(f: fn() -> ()) {
+pub unsafe extern "C" fn call_void(f: *const ()) {
+    // println!("function: {:?}", f);
+    // (*f)();
+    // f();
+    let fn_ref: fn() -> () = unsafe { std::mem::transmute(f) };
+    fn_ref();
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -62,5 +73,20 @@ mod tests {
         // unsafe { egui_run(g) };
         // let g = Egui::new(0xaa as MeshPainterHandler);
         // unsafe { egui_run(&g) };
+    }
+
+    #[test]
+    fn test_basic_calls() {
+        // let f = Box::leak(Box::new(move || {
+        //     println!("notification");
+        // }));
+        // let f = f as *const fn();
+        fn function() {
+            println!("notification");
+        }
+        let f = function as *const ();
+        // let fn_ref: *const fn() -> () = unsafe { std::mem::transmute(f) };
+        // let fn_ref: fn() -> () = unsafe { std::mem::transmute(f) };
+        unsafe { call_void(f) };
     }
 }
