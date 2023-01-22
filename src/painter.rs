@@ -1,12 +1,10 @@
 use egui::epaint::Vertex;
 use egui::{Mesh, TextureId};
 
-// pub type MeshPainterHandler = *const extern "C" fn(
 pub type MeshPainterHandler = extern "C" fn(
     indices: *const u32,
     indices_len: usize,
-    vertices: *const u32,
-    // vertices: *const Vertex,
+    vertices: *const Vertex,
     vertices_len: usize,
     texture_managed: bool,
     texture_id: u64,
@@ -32,17 +30,13 @@ impl EguiPainter {
             TextureId::Managed(id) => id,
             TextureId::User(id) => id,
         };
-        unsafe {
-            // (*self.handler)(
-            (self.handler)(
-                mesh.indices.as_ptr(),
-                indices_len,
-                // mesh.vertices.as_ptr(),
-                mesh.vertices.as_ptr() as *const u32,
-                vertices_len,
-                texture_managed,
-                texture_id,
-            );
-        }
+        (self.handler)(
+            mesh.indices.as_ptr(),
+            indices_len,
+            mesh.vertices.as_ptr(),
+            vertices_len,
+            texture_managed,
+            texture_id,
+        );
     }
 }

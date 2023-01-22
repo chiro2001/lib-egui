@@ -32,7 +32,6 @@ pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
     let e = Box::new(Egui::new(handler));
     let e = Box::leak(e);
     println!("return instance at: {:?}", e as *const Egui);
-    let handler = e.painter.handler;
     e
 }
 
@@ -41,7 +40,6 @@ pub unsafe extern "C" fn egui_run(g: *const Egui) {
     println!("running(g: {:?})...", g);
     let e = &*g;
     println!("painter: {:?}", e.painter);
-    let handler = e.painter.handler;
     e.painter.paint_mesh(&Mesh::default());
 }
 
