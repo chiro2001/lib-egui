@@ -1,7 +1,7 @@
 use std::fmt::Debug;
+use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
-use egui::Mesh;
 use crate::painter::{EguiPainter, MeshPainterHandler};
 use crate::state::EguiStateHandler;
 use crate::utils::egui_cast;
@@ -14,15 +14,15 @@ mod utils;
 
 #[derive(Debug)]
 pub struct Egui {
-    pub painter: EguiPainter,
-    pub state: EguiStateHandler,
+    pub painter: Arc<Mutex<EguiPainter>>,
+    pub state: Arc<Mutex<EguiStateHandler>>,
 }
 
 impl Egui {
     pub fn new(handler: MeshPainterHandler) -> Self {
         Self {
-            painter: EguiPainter::new(handler),
-            state: Default::default(),
+            painter: Arc::new(Mutex::new(EguiPainter::new(handler))),
+            state: Arc::new(Mutex::new(Default::default())),
         }
     }
 }

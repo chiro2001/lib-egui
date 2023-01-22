@@ -15,6 +15,8 @@ public interface LibEGui extends Library {
 
     void egui_run(Pointer egui);
 
+    void egui_run_block(Pointer egui);
+
     interface VoidHandler extends Callback {
         void callback();
     }

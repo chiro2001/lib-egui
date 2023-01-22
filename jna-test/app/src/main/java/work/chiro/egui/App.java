@@ -29,8 +29,9 @@ public class App {
         });
         Pointer egui = eguiLib.egui_create(meshHandler);
         System.out.println("egui = " + egui);
-        eguiLib.egui_run(egui);
+        // eguiLib.egui_run(egui);
         System.out.println("meshHandler = " + meshHandler);
-        Thread.sleep(1500);
+        // Thread.sleep(1500);
+        eguiLib.egui_run_block(egui);
     }
 }
