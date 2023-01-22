@@ -6,6 +6,8 @@ package work.chiro.egui;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 
+import java.util.Arrays;
+
 public class App {
     public static void main(String[] args) {
         String pwd = System.getProperty("user.dir");
@@ -13,12 +15,18 @@ public class App {
         LibEGui eguiLib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
         System.out.println("eguiLib.test(1, 2) = " + eguiLib.test(1, 2));
 
-        LibEGui.MeshPainterHandler meshHandler = new LibEGui.MeshPainterHandler() {
-            @Override
-            public void callback(Pointer indices, int indicesLen, Pointer vertices, int verticesLen, Boolean textureManaged, Long textureId) {
-                System.out.println("callback!");
-            }
-        };
+        LibEGui.MeshPainterHandler meshHandler = (indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> System.out.println("callback!");
+        eguiLib.call_void(() -> {
+            System.out.println("called");
+        });
+        eguiLib.call_u32((i) -> {
+            System.out.printf("called u32: 0x%x\n", i);
+        });
+        eguiLib.call_vec((data, len) -> {
+            // System.out.printf("called u32: 0x%x\n", i);
+            int[] arr = data.getIntArray(0, len);
+            System.out.println("arr = " + Arrays.toString(arr));
+        });
         Pointer egui = eguiLib.egui_create(meshHandler);
         System.out.println("egui = " + egui);
         eguiLib.egui_run(egui);

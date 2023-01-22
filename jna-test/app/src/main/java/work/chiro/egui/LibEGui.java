@@ -14,4 +14,22 @@ public interface LibEGui extends Library {
     Pointer egui_create(MeshPainterHandler handler);
 
     void egui_run(Pointer egui);
+
+    interface VoidHandler extends Callback {
+        void callback();
+    }
+
+    void call_void(VoidHandler handler);
+
+    interface IntHandler extends Callback {
+        void callback(int i);
+    }
+
+    void call_u32(IntHandler handler);
+
+    interface VecHandler extends Callback {
+        void callback(Pointer data, int len);
+    }
+
+    void call_vec(VecHandler handler);
 }

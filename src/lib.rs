@@ -25,14 +25,14 @@ impl Egui {
 }
 
 #[no_mangle]
-pub extern "C" fn egui_create(handler: MeshPainterHandler) -> *const Egui {
+pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
     println!("creating(handler: {:?})...", handler);
+    let handler: MeshPainterHandler = unsafe { std::mem::transmute(handler) };
     // let e = &Egui::new(handler);
     let e = Box::new(Egui::new(handler));
     let e = Box::leak(e);
     println!("return instance at: {:?}", e as *const Egui);
     let handler = e.painter.handler;
-    println!("handler: {:?}", handler);
     e
 }
 
@@ -43,18 +43,26 @@ pub unsafe extern "C" fn egui_run(g: *const Egui) {
     println!("painter: {:?}", e.painter);
     let handler = e.painter.handler;
     e.painter.paint_mesh(&Mesh::default());
-    println!("handler: {:?}", handler);
 }
 
 #[no_mangle]
-// pub unsafe extern "C" fn call_void(f: *const fn() -> ()) {
-// pub unsafe extern "C" fn call_void(f: fn() -> ()) {
 pub unsafe extern "C" fn call_void(f: *const ()) {
-    // println!("function: {:?}", f);
-    // (*f)();
-    // f();
     let fn_ref: fn() -> () = unsafe { std::mem::transmute(f) };
     fn_ref();
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn call_u32(f: *const ()) {
+    let fn_ref: fn(u32) -> () = unsafe { std::mem::transmute(f) };
+    fn_ref(0x55aa);
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn call_vec(f: *const ()) {
+    let fn_ref: fn(*const u32, u32) -> () = unsafe { std::mem::transmute(f) };
+    let vec: Vec<u32> = vec![1, 3, 5, 7, 9];
+    let v = Box::leak(Box::new(vec));
+    fn_ref(v.as_ptr(), v.len() as u32);
 }
 
 #[cfg(test)]
@@ -77,16 +85,14 @@ mod tests {
 
     #[test]
     fn test_basic_calls() {
-        // let f = Box::leak(Box::new(move || {
-        //     println!("notification");
-        // }));
-        // let f = f as *const fn();
         fn function() {
             println!("notification");
         }
         let f = function as *const ();
-        // let fn_ref: *const fn() -> () = unsafe { std::mem::transmute(f) };
-        // let fn_ref: fn() -> () = unsafe { std::mem::transmute(f) };
         unsafe { call_void(f) };
+        fn function2(i: u32) {
+            println!("recv i: 0x{:x}", i);
+        }
+        unsafe { call_u32(function2 as *const ()) };
     }
 }
