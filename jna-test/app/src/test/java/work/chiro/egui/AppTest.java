@@ -3,12 +3,47 @@
  */
 package work.chiro.egui;
 
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Arrays;
 
 class AppTest {
-    @Test void appHasAGreeting() {
-        App classUnderTest = new App();
-        assertNotNull(classUnderTest.getGreeting(), "app should have a greeting");
+    @Test void testFunctionCalls() throws InterruptedException {
+        String pwd = System.getProperty("user.dir");
+        System.out.printf("pwd: %s\n", pwd);
+        LibEGui eguiLib = Native.load(String.format("%s/../../target/debug/libegui.so", pwd), LibEGui.class);
+        System.out.println("eguiLib.test(1, 2) = " + eguiLib.test(1, 2));
+
+        LibEGui.PainterHandler paintHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> System.out.println("painting...");
+        eguiLib.call_void(() -> {
+            System.out.println("called");
+        });
+        eguiLib.call_u32((i) -> {
+            System.out.printf("called u32: 0x%x\n", i);
+        });
+        eguiLib.call_vec((data, len) -> {
+            // System.out.printf("called u32: 0x%x\n", i);
+            int[] arr = data.getIntArray(0, len);
+            System.out.println("arr = " + Arrays.toString(arr));
+        });
+        Pointer egui = eguiLib.egui_create(paintHandler);
+        System.out.println("egui = " + egui);
+        // eguiLib.egui_run(egui);
+        System.out.println("paintHandler = " + paintHandler);
+
+        System.out.println("================");
+        Thread t = new Thread(() -> {
+            System.out.println("egui_run_block start");
+            eguiLib.egui_run_block(egui);
+            System.out.println("egui_run_block done");
+        });
+        t.setDaemon(true);
+        t.start();
+        Thread.sleep(1500);
+        eguiLib.egui_quit(egui);
+        System.out.println("quit done");
+        Thread.sleep(1000);
     }
 }
