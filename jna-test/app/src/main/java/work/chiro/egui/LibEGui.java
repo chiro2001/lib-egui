@@ -34,4 +34,6 @@ public interface LibEGui extends Library {
     }
 
     void call_vec(VecHandler handler);
+
+    void egui_quit(Pointer egui);
 }

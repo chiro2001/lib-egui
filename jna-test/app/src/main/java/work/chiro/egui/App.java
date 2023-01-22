@@ -31,7 +31,18 @@ public class App {
         System.out.println("egui = " + egui);
         // eguiLib.egui_run(egui);
         System.out.println("meshHandler = " + meshHandler);
-        // Thread.sleep(1500);
-        eguiLib.egui_run_block(egui);
+
+        System.out.println("================");
+        Thread t = new Thread(() -> {
+            System.out.println("egui_run_block start");
+            eguiLib.egui_run_block(egui);
+            System.out.println("egui_run_block done");
+        });
+        t.setDaemon(true);
+        t.start();
+        Thread.sleep(1500);
+        eguiLib.egui_quit(egui);
+        System.out.println("quit done");
+        Thread.sleep(1000);
     }
 }
