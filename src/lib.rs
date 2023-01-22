@@ -5,6 +5,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::Duration;
+use tracing::trace;
 
 mod basic;
 pub mod events;
@@ -33,28 +34,28 @@ impl Egui {
 
 #[no_mangle]
 pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
-    println!("creating(handler: {:?})...", handler);
+    trace!("creating(handler: {:?})...", handler);
     let handler: MeshPainterHandler = unsafe { std::mem::transmute(handler) };
     // let e = &Egui::new(handler);
     let e = Box::new(Egui::new(handler));
     let e = Box::leak(e);
-    println!("return instance at: {:?}", e as *const Egui);
+    trace!("return instance at: {:?}", e as *const Egui);
     e
 }
 
 async fn egui_running(ui: &Egui) {
     loop {
-        println!("egui thread running");
+        trace!("egui thread running");
         sleep(Duration::from_millis(300));
         let quit = ui.quit.lock().unwrap();
         if *quit {
-            println!("egui_running will quit!");
+            trace!("egui_running will quit!");
             break;
         }
     }
     let mut quit_done = ui.quit_done.lock().unwrap();
     *quit_done = true;
-    println!("egui_running quit");
+    trace!("egui_running quit");
 }
 
 #[no_mangle]
@@ -71,17 +72,17 @@ pub unsafe extern "C" fn egui_run_block(g: *mut Egui) {
 
 #[no_mangle]
 pub unsafe extern "C" fn egui_quit(g: *mut Egui) {
-    println!("egui_quit...");
+    trace!("egui_quit...");
     let ui = egui_cast(g);
     {
         // must first release `quit`
         let mut quit = ui.quit.lock().unwrap();
         *quit = true;
-        println!("set quit flag");
+        trace!("set quit flag");
     }
     loop {
         sleep(Duration::from_millis(10));
-        println!("getting quit_done flag...");
+        trace!("getting quit_done flag...");
         let quit_done = ui.quit_done.lock().unwrap();
         if *quit_done {
             break;
