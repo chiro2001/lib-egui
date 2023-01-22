@@ -1,5 +1,8 @@
+use std::fmt::Debug;
+use std::thread::sleep;
+use std::time::Duration;
+use egui::Mesh;
 use crate::painter::{EguiPainter, MeshPainterHandler};
-use egui::{Event, Mesh};
 use crate::state::EguiStateHandler;
 use crate::utils::egui_cast;
 
@@ -35,10 +38,21 @@ pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
     e
 }
 
+async fn egui_running(ui: &Egui) {
+    loop {
+        println!("egui thread running");
+        sleep(Duration::from_millis(300));
+    }
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn egui_run(g: *mut Egui) {
-    println!("running(g: {:?})...", g);
-    let e = egui_cast(g);
-    println!("painter: {:?}", e.painter);
-    e.painter.paint_mesh(&Mesh::default());
+    let ui = egui_cast(g);
+    std::thread::spawn(move || futures::executor::block_on(egui_running(ui)));
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn egui_run_block(g: *mut Egui) {
+    let ui = egui_cast(g);
+    futures::executor::block_on(egui_running(ui));
 }

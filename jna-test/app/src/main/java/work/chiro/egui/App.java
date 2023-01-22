@@ -9,7 +9,7 @@ import com.sun.jna.Pointer;
 import java.util.Arrays;
 
 public class App {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         String pwd = System.getProperty("user.dir");
         System.out.printf("pwd: %s\n", pwd);
         LibEGui eguiLib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
@@ -31,5 +31,6 @@ public class App {
         System.out.println("egui = " + egui);
         eguiLib.egui_run(egui);
         System.out.println("meshHandler = " + meshHandler);
+        Thread.sleep(1500);
     }
 }
