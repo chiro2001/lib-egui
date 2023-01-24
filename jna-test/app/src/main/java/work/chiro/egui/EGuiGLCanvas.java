@@ -56,6 +56,10 @@ public class EGuiGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler 
         int w = getWidth();
         int h = getHeight();
 
+        // glBindVertexArray(vertexArray);
+        // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+        // glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indicesLen);
+
         glBindTexture(GL_TEXTURE_2D, eguiTexture);
 
         glClear(GL_COLOR_BUFFER_BIT);
@@ -63,7 +67,8 @@ public class EGuiGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler 
         glBegin(GL_TRIANGLES);
         // glColor3f(0.4f, 0.6f, 0.8f);
         for (int i = 0; i < mesh.indicesLen; i++) {
-            int index = mesh.indices.getInt((long) i << 2);
+            // mesh 16
+            int index = mesh.indices.getShort((long) i << 1);
             Vertex v = Vertex.fromPointer(new Pointer(Pointer.nativeValue(mesh.vertices) + (long) index * Vertex.bytesLength()));
             glVertex2f(v.pos.x, v.pos.y);
             glColor4b((byte) ((v.color >> 24) & 0xff), (byte) ((v.color >> 16) & 0xff), (byte) ((v.color >> 8) & 0xff), (byte) (v.color & 0xff));
