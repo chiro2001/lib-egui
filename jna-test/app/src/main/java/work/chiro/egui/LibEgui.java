@@ -4,17 +4,21 @@ import com.sun.jna.Callback;
 import com.sun.jna.Library;
 import com.sun.jna.Pointer;
 
-public interface LibEGui extends Library {
+public interface LibEgui extends Library {
     int test(int left, int right);
 
-    interface PainterHandler extends Callback {
+    interface PainterMeshHandler extends Callback {
         void callback(float minX, float minY, float maxX, float maxY,
                       Pointer indices, int indicesLen,
                       Pointer vertices, int verticesLen,
                       Boolean textureManaged, Long textureId);
     }
 
-    Pointer egui_create(PainterHandler handler);
+    interface PainterBeforeHandler extends Callback {
+        boolean callback();
+    }
+
+    Pointer egui_create(PainterBeforeHandler before, PainterMeshHandler handler, VoidHandler after);
 
     void egui_run(Pointer egui);
 

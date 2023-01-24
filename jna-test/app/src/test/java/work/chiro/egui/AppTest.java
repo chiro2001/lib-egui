@@ -10,13 +10,14 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 
 class AppTest {
-    @Test void testFunctionCalls() throws InterruptedException {
+    @Test
+    void testFunctionCalls() throws InterruptedException {
         String pwd = System.getProperty("user.dir");
         System.out.printf("pwd: %s\n", pwd);
-        LibEGui eguiLib = Native.load(String.format("%s/../../target/debug/libegui.so", pwd), LibEGui.class);
+        LibEgui eguiLib = Native.load(String.format("%s/../../target/debug/libegui.so", pwd), LibEgui.class);
         System.out.println("eguiLib.test(1, 2) = " + eguiLib.test(1, 2));
 
-        LibEGui.PainterHandler paintHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> System.out.println("painting...");
+        LibEgui.PainterMeshHandler paintHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> System.out.println("painting...");
         eguiLib.call_void(() -> {
             System.out.println("called");
         });
@@ -28,7 +29,8 @@ class AppTest {
             int[] arr = data.getIntArray(0, len);
             System.out.println("arr = " + Arrays.toString(arr));
         });
-        Pointer egui = eguiLib.egui_create(paintHandler);
+        Pointer egui = eguiLib.egui_create(() -> true, paintHandler, () -> {
+        });
         System.out.println("egui = " + egui);
         // eguiLib.egui_run(egui);
         System.out.println("paintHandler = " + paintHandler);

@@ -16,9 +16,6 @@ public class App {
     static Semaphore signalTerminate = new Semaphore(0);
     static Semaphore signalTerminated = new Semaphore(0);
     private final JFrame frame;
-    private final LibEGui lib;
-    private final Pointer ui;
-    private Runnable testHandler;
 
     public static void doTerminate() {
         // request the cleanup
@@ -43,18 +40,12 @@ public class App {
         frame.setLayout(new BorderLayout());
         frame.setPreferredSize(new Dimension(600, 600));
         GLData data = new GLData();
-        EGuiGLCanvas canvas = new EGuiGLCanvas(data);
+        EguiGLCanvas canvas = new EguiGLCanvas(data);
         frame.add(canvas, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
         frame.transferFocus();
-        String pwd = System.getProperty("user.dir");
-        lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
-        ui = lib.egui_create(canvas);
-        // lib.egui_run(ui);
-        Thread thread = new Thread(() -> lib.egui_run_block(ui));
-        thread.setDaemon(true);
-        thread.start();
+        canvas.start();
     }
 
     public void run() throws InterruptedException {

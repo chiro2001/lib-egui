@@ -1,14 +1,11 @@
-use crate::painter::{EguiPainter, PainterHandler};
+use crate::painter::{EguiPainter, PainterBeforeHandler, PainterMeshHandler, PainterVoidHandler};
 use crate::state::EguiStateHandler;
 use crate::utils::egui_cast;
 use std::fmt::Debug;
-use std::mem::size_of;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use egui::epaint::Vertex;
-use egui::{Color32, Pos2};
-use tracing::{debug, info};
+use tracing::debug;
 
 mod basic;
 pub mod events;
@@ -25,9 +22,9 @@ pub struct Egui {
 }
 
 impl Egui {
-    pub fn new(handler: PainterHandler) -> Self {
+    pub fn new(painter: EguiPainter) -> Self {
         Self {
-            painter: Arc::new(Mutex::new(EguiPainter::new(handler))),
+            painter: Arc::new(Mutex::new(painter)),
             state: Arc::new(Mutex::new(Default::default())),
             quit: Arc::new(Mutex::new(false)),
             quit_done: Arc::new(Mutex::new(false)),
@@ -36,15 +33,15 @@ impl Egui {
 }
 
 #[no_mangle]
-pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
+pub extern "C" fn egui_create(before: *const (), mesh: *const (), after: *const ()) -> *const Egui {
     tracing_subscriber::fmt::init();
-    debug!("creating(handler: {:?})...", handler);
-    info!("sizeof pos2: {}", size_of::<Pos2>());
-    info!("sizeof color32: {}", size_of::<Color32>());
-    info!("sizeof vertex: {}", size_of::<Vertex>());
-    let handler: PainterHandler = unsafe { std::mem::transmute(handler) };
+    debug!("creating(handler: {:?})...", mesh);
+    let before: PainterBeforeHandler = unsafe { std::mem::transmute(before) };
+    let mesh: PainterMeshHandler = unsafe { std::mem::transmute(mesh) };
+    let after: PainterVoidHandler = unsafe { std::mem::transmute(after) };
     // let e = &Egui::new(handler);
-    let e = Box::new(Egui::new(handler));
+    let painter = EguiPainter::new(before, mesh, after);
+    let e = Box::new(Egui::new(painter));
     let e = Box::leak(e);
     debug!("return instance at: {:?}", e as *const Egui);
     e
