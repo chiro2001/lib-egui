@@ -3,17 +3,23 @@
  */
 package work.chiro.egui;
 
+import com.sun.jna.Native;
+import com.sun.jna.Pointer;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.*;
 
 class MyGLCanvas extends AWTGLCanvas {
+    private boolean enabled = false;
+
     protected MyGLCanvas(GLData data) {
         super(data);
     }
@@ -23,6 +29,7 @@ class MyGLCanvas extends AWTGLCanvas {
         System.out.println("OpenGL version: " + effective.majorVersion + "." + effective.minorVersion + " (Profile: " + effective.profile + ")");
         createCapabilities();
         glClearColor(0.3f, 0.4f, 0.5f, 1);
+        enabled = true;
     }
 
     @Override
@@ -47,11 +54,46 @@ class MyGLCanvas extends AWTGLCanvas {
     void setInitCalled(boolean value) {
         initCalled = value;
     }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    @Override
+    public void disposeCanvas() {
+        enabled = false;
+        super.disposeCanvas();
+    }
 }
 
 public class App {
-    public static void main(String[] args) throws InterruptedException {
-        JFrame frame = new JFrame("AWT test");
+    static Semaphore signalTerminate = new Semaphore(0);
+    static Semaphore signalTerminated = new Semaphore(0);
+    private final JFrame frame;
+    private final LibEGui.PainterHandler renderHandler;
+    private final LibEGui lib;
+    private final Pointer ui;
+
+    public static void doTerminate() {
+        // request the cleanup
+        signalTerminate.release();
+        try {
+            // wait until the thread is done with the cleanup
+            boolean _i = signalTerminated.tryAcquire(2, TimeUnit.SECONDS);
+            // signalTerminated.acquire();
+        } catch (InterruptedException ignored) {
+        }
+    }
+
+    public App() {
+        frame = new JFrame("AWT test") {
+            @Override
+            public void dispose() {
+                doTerminate();
+                super.dispose();
+            }
+        };
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setLayout(new BorderLayout());
         frame.setPreferredSize(new Dimension(600, 600));
@@ -61,66 +103,66 @@ public class App {
         frame.pack();
         frame.setVisible(true);
         frame.transferFocus();
-        Runnable renderLoop = new Runnable() {
-            @Override
-            public void run() {
-                if (!canvas.isValid()) {
-                    GL.setCapabilities(null);
-                    return;
-                }
-                // canvas.render();
+        renderHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
+            if (!canvas.isEnabled()) return;
+            System.out.println("renderHandler!");
+            if (!canvas.isValid()) {
+                GL.setCapabilities(null);
+                return;
+            }
+            // canvas.render();
 
-                canvas.beforeRender();
-                try {
-                    if (!canvas.getInitCalled()) {
-                        canvas.initGL();
-                        canvas.setInitCalled(true);
-                    }
-                    int w = canvas.getWidth();
-                    int h = canvas.getHeight();
-                    float aspect = (float) w / h;
-                    double now = System.currentTimeMillis() * 0.001;
-                    float width = (float) Math.abs(Math.sin(now * 0.3));
-                    glClear(GL_COLOR_BUFFER_BIT);
-                    glViewport(0, 0, w, h);
-                    glBegin(GL_QUADS);
-                    glColor3f(0.4f, 0.6f, 0.8f);
-                    glVertex2f(-0.75f * width / aspect, 0.0f);
-                    glVertex2f(0, -0.75f);
-                    glVertex2f(+0.75f * width / aspect, 0);
-                    glVertex2f(0, +0.75f);
-                    glEnd();
-                    canvas.swapBuffers();
-                } finally {
-                    canvas.afterRender();
+            canvas.beforeRender();
+            try {
+                if (!canvas.getInitCalled()) {
+                    canvas.initGL();
+                    canvas.setInitCalled(true);
                 }
+                int w = canvas.getWidth();
+                int h = canvas.getHeight();
+                float aspect = (float) w / h;
+                double now = System.currentTimeMillis() * 0.001;
+                float width = (float) Math.abs(Math.sin(now * 0.3));
+                glClear(GL_COLOR_BUFFER_BIT);
+                glViewport(0, 0, w, h);
+                glBegin(GL_QUADS);
+                glColor3f(0.4f, 0.6f, 0.8f);
+                glVertex2f(-0.75f * width / aspect, 0.0f);
+                glVertex2f(0, -0.75f);
+                glVertex2f(+0.75f * width / aspect, 0);
+                glVertex2f(0, +0.75f);
+                glEnd();
+                canvas.swapBuffers();
+            } finally {
+                canvas.afterRender();
+            }
 
-                // SwingUtilities.invokeLater(this);
-                // try {
-                //     Thread.sleep(10);
-                // } catch (InterruptedException e) {
-                //     System.out.println("interrupted");
-                //     return;
-                // }
-                try {
-                    Thread.sleep(1);
-                } catch (InterruptedException ignored) {
+            try {
+                if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
                     System.out.println("interrupted");
                     GL.setCapabilities(null);
+                    signalTerminated.release();
                     canvas.disposeCanvas();
-                    return;
                 }
-                run();
+            } catch (InterruptedException ignored) {
             }
         };
-        // SwingUtilities.invokeLater(renderLoop);
-        Thread t = new Thread(renderLoop);
-        t.setDaemon(true);
-        t.start();
+        String pwd = System.getProperty("user.dir");
+        lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
+        ui = lib.egui_create(renderHandler);
+        lib.egui_run(ui);
+    }
+
+    public void run() throws InterruptedException {
         Thread.sleep(3000);
-        t.interrupt();
+        // t.interrupt();
         Thread.sleep(500);
         System.out.println("all done");
         frame.dispose();
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        App app = new App();
+        app.run();
     }
 }
