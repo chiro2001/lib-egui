@@ -47,7 +47,7 @@ pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
 async fn egui_running(ui: &Egui) {
     let ctx = egui::Context::default();
     loop {
-        debug!("egui thread running");
+        // debug!("egui thread running");
         let start_time = Instant::now();
         let mut state = ui.state.lock().unwrap();
         state.input.time = Some(start_time.elapsed().as_secs_f64());

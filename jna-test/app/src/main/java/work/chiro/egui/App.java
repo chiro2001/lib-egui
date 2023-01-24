@@ -71,7 +71,6 @@ public class App {
     static Semaphore signalTerminate = new Semaphore(0);
     static Semaphore signalTerminated = new Semaphore(0);
     private final JFrame frame;
-    private final LibEGui.PainterHandler renderHandler;
     private final LibEGui lib;
     private final Pointer ui;
     private Runnable testHandler;
@@ -104,18 +103,15 @@ public class App {
         frame.pack();
         frame.setVisible(true);
         frame.transferFocus();
-        testHandler = () -> {
+        LibEGui.PainterHandler renderHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
             if (!canvas.isEnabled() && canvas.getInitCalled()) {
                 System.out.println("canvas disabled!");
                 return;
             }
-            // System.out.println("renderHandler!");
             if (!canvas.isValid()) {
                 GL.setCapabilities(null);
                 return;
             }
-            // canvas.render();
-
             canvas.beforeRender();
             try {
                 if (!canvas.getInitCalled()) {
@@ -153,26 +149,18 @@ public class App {
             } catch (InterruptedException ignored) {
                 System.out.println("InterruptedException");
             }
-            // System.out.println("renderHandler ends!");
-        };
-        renderHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
-            testHandler.run();
         };
         String pwd = System.getProperty("user.dir");
         lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
         ui = lib.egui_create(renderHandler);
         // lib.egui_run(ui);
-        Thread t = new Thread(() -> lib.egui_run_block(ui));
-        t.setDaemon(true);
-        t.start();
+        Thread thread = new Thread(() -> lib.egui_run_block(ui));
+        thread.setDaemon(true);
+        thread.start();
     }
 
     public void run() throws InterruptedException {
         Thread.sleep(3000);
-        // for (int i = 0; i < 3000; i++) {
-        //     Thread.sleep(1);
-        //     testHandler.run();
-        // }
         System.out.println("all done");
         frame.dispose();
     }
