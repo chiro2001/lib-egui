@@ -6,7 +6,7 @@ import org.lwjgl.opengl.awt.GLData;
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.glClearColor;
 
-class MyGLCanvas extends AWTGLCanvas {
+public class MyGLCanvas extends AWTGLCanvas {
     private boolean enabled = false;
 
     protected MyGLCanvas(GLData data) {

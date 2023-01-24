@@ -13,6 +13,19 @@ public class Vertex {
     }
 
     public static Vertex fromPointer(Pointer buffer) {
-        return new Vertex(new Pos2(0, 0), new Pos2(0, 0), 0L);
+        System.out.printf("loading from addr: %x\n", Pointer.nativeValue(buffer));
+        return new Vertex(
+                new Pos2(
+                        buffer.getFloat(0),
+                        buffer.getFloat(4)
+                ),
+                new Pos2(
+                        buffer.getFloat(8),
+                        buffer.getFloat(12)
+                ), buffer.getInt(16) & 0xffffffffL);
+    }
+
+    public static int bytesLength() {
+        return 20;
     }
 }

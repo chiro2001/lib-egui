@@ -2,10 +2,13 @@ use crate::painter::{EguiPainter, PainterHandler};
 use crate::state::EguiStateHandler;
 use crate::utils::egui_cast;
 use std::fmt::Debug;
+use std::mem::size_of;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use tracing::debug;
+use egui::epaint::Vertex;
+use egui::{Color32, Pos2};
+use tracing::{debug, info};
 
 mod basic;
 pub mod events;
@@ -36,6 +39,9 @@ impl Egui {
 pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
     tracing_subscriber::fmt::init();
     debug!("creating(handler: {:?})...", handler);
+    info!("sizeof pos2: {}", size_of::<Pos2>());
+    info!("sizeof color32: {}", size_of::<Color32>());
+    info!("sizeof vertex: {}", size_of::<Vertex>());
     let handler: PainterHandler = unsafe { std::mem::transmute(handler) };
     // let e = &Egui::new(handler);
     let e = Box::new(Egui::new(handler));
