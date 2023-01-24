@@ -76,12 +76,6 @@ public class EGuiGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler 
     }
 
     public void paintMesh(Mesh mesh) {
-        int w = getWidth();
-        int h = getHeight();
-
-        glClear(GL_COLOR_BUFFER_BIT);
-        glViewport(0, 0, w, h);
-
         glBindTexture(GL_TEXTURE_2D, eguiTexture);
 
         // glBindVertexArray(vertexArray);
@@ -112,13 +106,40 @@ public class EGuiGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler 
             return;
         }
         Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+
         beforeRender();
+
         try {
             if (!initCalled) {
                 initGL();
                 initCalled = true;
             }
+
+            glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+            glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+
+            glClearColor(0x3c, 0x3f, 0x3f, 0xff);
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            int w = getWidth();
+            int h = getHeight();
+
+            glEnable(GL_FRAMEBUFFER_SRGB);
+            glEnable(GL_SCISSOR_TEST);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+            glUseProgram(program);
+            glActiveTexture(GL_TEXTURE0);
+            int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
+            glUniform2f(screenSizeLoc, w, h);
+            int samplerLoc = glGetUniformLocation(program, "u_sampler");
+            glUniform1i(samplerLoc, 0);
+            glViewport(0, 0, w, h);
+
             paintMesh(mesh);
+            glDisable(GL_SCISSOR_TEST);
+            glDisable(GL_FRAMEBUFFER_SRGB);
+            glDisable(GL_BLEND);
         } catch (Throwable e) {
             System.out.printf("paint error: %s\n", e);
         } finally {
