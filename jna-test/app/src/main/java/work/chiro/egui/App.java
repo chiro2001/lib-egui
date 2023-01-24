@@ -95,9 +95,32 @@ public class App {
                     canvas.afterRender();
                 }
 
-                SwingUtilities.invokeLater(this);
+                // SwingUtilities.invokeLater(this);
+                // try {
+                //     Thread.sleep(10);
+                // } catch (InterruptedException e) {
+                //     System.out.println("interrupted");
+                //     return;
+                // }
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException ignored) {
+                    System.out.println("interrupted");
+                    GL.setCapabilities(null);
+                    canvas.disposeCanvas();
+                    return;
+                }
+                run();
             }
         };
-        SwingUtilities.invokeLater(renderLoop);
+        // SwingUtilities.invokeLater(renderLoop);
+        Thread t = new Thread(renderLoop);
+        t.setDaemon(true);
+        t.start();
+        Thread.sleep(3000);
+        t.interrupt();
+        Thread.sleep(500);
+        System.out.println("all done");
+        frame.dispose();
     }
 }
