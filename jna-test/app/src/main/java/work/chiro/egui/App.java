@@ -5,15 +5,12 @@ package work.chiro.egui;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class App {
     static Semaphore signalTerminate = new Semaphore(0);
@@ -51,58 +48,9 @@ public class App {
         frame.pack();
         frame.setVisible(true);
         frame.transferFocus();
-        LibEGui.PainterHandler renderHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
-            if (!canvas.isEnabled() && canvas.getInitCalled()) {
-                System.out.println("canvas disabled!");
-                return;
-            }
-            if (!canvas.isValid()) {
-                GL.setCapabilities(null);
-                return;
-            }
-            canvas.beforeRender();
-            try {
-                if (!canvas.getInitCalled()) {
-                    canvas.initGL();
-                    canvas.setInitCalled(true);
-                }
-                int w = canvas.getWidth();
-                int h = canvas.getHeight();
-
-                glClear(GL_COLOR_BUFFER_BIT);
-                glViewport(0, 0, w, h);
-                glBegin(GL_TRIANGLES);
-                // glColor3f(0.4f, 0.6f, 0.8f);
-                for (int i = 0; i < indicesLen; i++) {
-                    int index = indices.getInt((long) i << 2);
-                    Vertex v = Vertex.fromPointer(new Pointer(Pointer.nativeValue(vertices) + (long) index * Vertex.bytesLength()));
-                    glVertex2f(v.pos.x, v.pos.y);
-                    glColor4b((byte) (v.color & 0xff), (byte) ((v.color >> 8) & 0xff), (byte) ((v.color >> 16) & 0xff), (byte) ((v.color >> 24) & 0xff));
-                }
-                glEnd();
-
-                canvas.swapBuffers();
-            } catch (Throwable e) {
-                System.out.printf("paint error: %s\n", e);
-            } finally {
-                canvas.afterRender();
-            }
-
-            try {
-                if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
-                    System.out.println("interrupted");
-                    GL.setCapabilities(null);
-                    signalTerminated.release();
-                    canvas.disposeCanvas();
-                }
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-                System.out.println("InterruptedException");
-            }
-        };
         String pwd = System.getProperty("user.dir");
         lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
-        ui = lib.egui_create(renderHandler);
+        ui = lib.egui_create(canvas);
         // lib.egui_run(ui);
         Thread thread = new Thread(() -> lib.egui_run_block(ui));
         thread.setDaemon(true);

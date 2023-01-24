@@ -8,7 +8,10 @@ public interface LibEGui extends Library {
     int test(int left, int right);
 
     interface PainterHandler extends Callback {
-        void callback(float minX, float minY, float maxX, float maxY, Pointer indices, int indicesLen, Pointer vertices, int verticesLen, Boolean textureManaged, Long textureId);
+        void callback(float minX, float minY, float maxX, float maxY,
+                      Pointer indices, int indicesLen,
+                      Pointer vertices, int verticesLen,
+                      Boolean textureManaged, Long textureId);
     }
 
     Pointer egui_create(PainterHandler handler);
