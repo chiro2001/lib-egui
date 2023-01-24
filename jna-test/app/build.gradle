@@ -80,4 +80,8 @@ dependencies {
     runtimeOnly "org.lwjgl:lwjgl-openal::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-opengl::$lwjglNatives"
     runtimeOnly "org.lwjgl:lwjgl-stb::$lwjglNatives"
+
+    // https://mvnrepository.com/artifact/org.lwjglx/lwjgl3-awt
+    implementation 'org.lwjglx:lwjgl3-awt:0.1.8'
+
 }

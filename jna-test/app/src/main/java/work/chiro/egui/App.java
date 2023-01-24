@@ -3,13 +3,101 @@
  */
 package work.chiro.egui;
 
-import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.awt.AWTGLCanvas;
+import org.lwjgl.opengl.awt.GLData;
 
-import java.util.Arrays;
+import javax.swing.*;
+import java.awt.*;
+
+import static org.lwjgl.opengl.GL.createCapabilities;
+import static org.lwjgl.opengl.GL11.*;
+
+class MyGLCanvas extends AWTGLCanvas {
+    protected MyGLCanvas(GLData data) {
+        super(data);
+    }
+
+    @Override
+    public void initGL() {
+        System.out.println("OpenGL version: " + effective.majorVersion + "." + effective.minorVersion + " (Profile: " + effective.profile + ")");
+        createCapabilities();
+        glClearColor(0.3f, 0.4f, 0.5f, 1);
+    }
+
+    @Override
+    public void paintGL() {
+
+    }
+
+    @Override
+    public void beforeRender() {
+        super.beforeRender();
+    }
+
+    @Override
+    public void afterRender() {
+        super.afterRender();
+    }
+
+    boolean getInitCalled() {
+        return initCalled;
+    }
+
+    void setInitCalled(boolean value) {
+        initCalled = value;
+    }
+}
 
 public class App {
     public static void main(String[] args) throws InterruptedException {
+        JFrame frame = new JFrame("AWT test");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+        frame.setPreferredSize(new Dimension(600, 600));
+        GLData data = new GLData();
+        MyGLCanvas canvas = new MyGLCanvas(data);
+        frame.add(canvas, BorderLayout.CENTER);
+        frame.pack();
+        frame.setVisible(true);
+        frame.transferFocus();
+        Runnable renderLoop = new Runnable() {
+            @Override
+            public void run() {
+                if (!canvas.isValid()) {
+                    GL.setCapabilities(null);
+                    return;
+                }
+                // canvas.render();
 
+                canvas.beforeRender();
+                try {
+                    if (!canvas.getInitCalled()) {
+                        canvas.initGL();
+                        canvas.setInitCalled(true);
+                    }
+                    int w = canvas.getWidth();
+                    int h = canvas.getHeight();
+                    float aspect = (float) w / h;
+                    double now = System.currentTimeMillis() * 0.001;
+                    float width = (float) Math.abs(Math.sin(now * 0.3));
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    glViewport(0, 0, w, h);
+                    glBegin(GL_QUADS);
+                    glColor3f(0.4f, 0.6f, 0.8f);
+                    glVertex2f(-0.75f * width / aspect, 0.0f);
+                    glVertex2f(0, -0.75f);
+                    glVertex2f(+0.75f * width / aspect, 0);
+                    glVertex2f(0, +0.75f);
+                    glEnd();
+                    canvas.swapBuffers();
+                } finally {
+                    canvas.afterRender();
+                }
+
+                SwingUtilities.invokeLater(this);
+            }
+        };
+        SwingUtilities.invokeLater(renderLoop);
     }
 }
