@@ -20,6 +20,9 @@ public class EGuiGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler 
     public int tcBuffer;
     public int colorBuffer;
     public int vertexArray;
+    public int vertShader;
+    public int fragShader;
+    public int program;
 
     protected EGuiGLCanvas(GLData data) {
         super(data);
@@ -32,12 +35,29 @@ public class EGuiGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler 
         glClearColor(0.3f, 0.4f, 0.5f, 1);
         enabled = true;
         eguiTexture = glGenTextures();
+        glBindTexture(GL_TEXTURE_2D, eguiTexture);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+        vertShader = Shader.compile(Shader.VS_SRC, GL_VERTEX_SHADER);
+        fragShader = Shader.compile(Shader.FS_SRC, GL_FRAGMENT_SHADER);
+        program = Shader.linkProgram(vertShader, fragShader);
+
+        vertexArray = glGenVertexArrays();
+        glBindVertexArray(vertexArray);
+
         indexBuffer = glGenBuffers();
         posBuffer = glGenBuffers();
         tcBuffer = glGenBuffers();
         colorBuffer = glGenBuffers();
-        vertexArray = glGenVertexArrays();
-        glBindVertexArray(vertexArray);
+
+        glDetachShader(program, vertShader);
+        glDetachShader(program, fragShader);
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
     }
 
     @Override
