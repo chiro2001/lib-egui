@@ -13,7 +13,7 @@ public class Vertex {
     }
 
     public static Vertex fromPointer(Pointer buffer) {
-        System.out.printf("loading from addr: %x\n", Pointer.nativeValue(buffer));
+        // System.out.printf("loading from addr: %x\n", Pointer.nativeValue(buffer));
         return new Vertex(
                 new Pos2(
                         buffer.getFloat(0),

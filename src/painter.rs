@@ -1,6 +1,6 @@
 use egui::epaint::{Primitive, Vertex};
 use egui::{ClippedPrimitive, TextureId};
-use tracing::info;
+use tracing::trace;
 
 pub type PainterHandler = extern "C" fn(
     min_x: f32,
@@ -47,13 +47,13 @@ impl EguiPainter {
                 TextureId::User(id) => id,
             };
             let rect = primitive.clip_rect;
-            // info!(
-            //     "vertex: [{:x}]{:?}, [{:x}]{:?}",
-            //     mesh.vertices.get(0).unwrap() as *const Vertex as u64,
-            //     mesh.vertices.get(0).unwrap().pos,
-            //     mesh.vertices.get(1).unwrap() as *const Vertex as u64,
-            //     mesh.vertices.get(1).unwrap().pos
-            // );
+            trace!(
+                "vertex: [{:x}]{:?}, [{:x}]{:?}",
+                mesh.vertices.get(0).unwrap() as *const Vertex as u64,
+                mesh.vertices.get(0).unwrap().pos,
+                mesh.vertices.get(1).unwrap() as *const Vertex as u64,
+                mesh.vertices.get(1).unwrap().pos
+            );
             (self.handler)(
                 rect.min.x,
                 rect.min.y,

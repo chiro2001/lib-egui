@@ -69,37 +69,15 @@ public class App {
                 int w = canvas.getWidth();
                 int h = canvas.getHeight();
 
-                // float aspect = (float) w / h;
-                // double now = System.currentTimeMillis() * 0.001;
-                // float width = (float) Math.abs(Math.sin(now * 0.3));
-                // glClear(GL_COLOR_BUFFER_BIT);
-                // glViewport(0, 0, w, h);
-                // glBegin(GL_QUADS);
-                // glColor3f(0.4f, 0.6f, 0.8f);
-                // glVertex2f(-0.75f * width / aspect, 0.0f);
-                // glVertex2f(0, -0.75f);
-                // glVertex2f(+0.75f * width / aspect, 0);
-                // glVertex2f(0, +0.75f);
-                // glEnd();
-
                 glClear(GL_COLOR_BUFFER_BIT);
                 glViewport(0, 0, w, h);
                 glBegin(GL_TRIANGLES);
-                glColor3f(0.4f, 0.6f, 0.8f);
-                // System.out.println("verticesLen = " + verticesLen);
-                Pointer p = vertices;
-                for (int i = 0; i < verticesLen; i++) {
-                    Vertex v = Vertex.fromPointer(p);
-                    System.out.printf("vex: pos=%s, uv=%s, color=%08x\n", v.pos, v.uv, v.color);
-                    // System.out.println("v.pos = " + v.pos);
+                // glColor3f(0.4f, 0.6f, 0.8f);
+                for (int i = 0; i < indicesLen; i++) {
+                    int index = indices.getInt((long) i << 2);
+                    Vertex v = Vertex.fromPointer(new Pointer(Pointer.nativeValue(vertices) + (long) index * Vertex.bytesLength()));
                     glVertex2f(v.pos.x, v.pos.y);
-                    // System.out.println("v.uv = " + v.uv);
-                    // System.out.printf("v.color = %08x\n", v.color);
                     glColor4b((byte) (v.color & 0xff), (byte) ((v.color >> 8) & 0xff), (byte) ((v.color >> 16) & 0xff), (byte) ((v.color >> 24) & 0xff));
-                    // System.out.println("update pointer");
-                    // p = p.getPointer(Vertex.bytesLength());
-                    p = Pointer.createConstant(Pointer.nativeValue(p) + Vertex.bytesLength());
-                    // System.out.println("update pointer done");
                 }
                 glEnd();
 
@@ -117,6 +95,7 @@ public class App {
                     signalTerminated.release();
                     canvas.disposeCanvas();
                 }
+                Thread.sleep(100);
             } catch (InterruptedException ignored) {
                 System.out.println("InterruptedException");
             }
