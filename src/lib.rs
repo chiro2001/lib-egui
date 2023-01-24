@@ -5,7 +5,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use tracing::trace;
+use tracing::debug;
 
 mod basic;
 pub mod events;
@@ -34,19 +34,20 @@ impl Egui {
 
 #[no_mangle]
 pub extern "C" fn egui_create(handler: *const ()) -> *const Egui {
-    trace!("creating(handler: {:?})...", handler);
+    tracing_subscriber::fmt::init();
+    debug!("creating(handler: {:?})...", handler);
     let handler: PainterHandler = unsafe { std::mem::transmute(handler) };
     // let e = &Egui::new(handler);
     let e = Box::new(Egui::new(handler));
     let e = Box::leak(e);
-    trace!("return instance at: {:?}", e as *const Egui);
+    debug!("return instance at: {:?}", e as *const Egui);
     e
 }
 
 async fn egui_running(ui: &Egui) {
     let ctx = egui::Context::default();
     loop {
-        trace!("egui thread running");
+        debug!("egui thread running");
         let start_time = Instant::now();
         let mut state = ui.state.lock().unwrap();
         state.input.time = Some(start_time.elapsed().as_secs_f64());
@@ -64,16 +65,17 @@ async fn egui_running(ui: &Egui) {
             painter.paint_primitive(primitive);
         }
 
-        sleep(Duration::from_millis(100));
+        // sleep(Duration::from_millis(100));
+        sleep(Duration::from_millis(1));
         let quit = ui.quit.lock().unwrap();
         if *quit {
-            trace!("egui_running will quit!");
+            debug!("egui_running will quit!");
             break;
         }
     }
     let mut quit_done = ui.quit_done.lock().unwrap();
     *quit_done = true;
-    trace!("egui_running quit");
+    debug!("egui_running quit");
 }
 
 #[no_mangle]
@@ -90,17 +92,17 @@ pub unsafe extern "C" fn egui_run_block(g: *mut Egui) {
 
 #[no_mangle]
 pub unsafe extern "C" fn egui_quit(g: *mut Egui) {
-    trace!("egui_quit...");
+    debug!("egui_quit...");
     let ui = egui_cast(g);
     {
         // must first release `quit`
         let mut quit = ui.quit.lock().unwrap();
         *quit = true;
-        trace!("set quit flag");
+        debug!("set quit flag");
     }
     loop {
         sleep(Duration::from_millis(10));
-        trace!("getting quit_done flag...");
+        debug!("getting quit_done flag...");
         let quit_done = ui.quit_done.lock().unwrap();
         if *quit_done {
             break;

@@ -74,13 +74,14 @@ public class App {
     private final LibEGui.PainterHandler renderHandler;
     private final LibEGui lib;
     private final Pointer ui;
+    private Runnable testHandler;
 
     public static void doTerminate() {
         // request the cleanup
         signalTerminate.release();
         try {
             // wait until the thread is done with the cleanup
-            boolean _i = signalTerminated.tryAcquire(2, TimeUnit.SECONDS);
+            boolean _i = signalTerminated.tryAcquire(300, TimeUnit.MILLISECONDS);
             // signalTerminated.acquire();
         } catch (InterruptedException ignored) {
         }
@@ -103,9 +104,12 @@ public class App {
         frame.pack();
         frame.setVisible(true);
         frame.transferFocus();
-        renderHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
-            if (!canvas.isEnabled()) return;
-            System.out.println("renderHandler!");
+        testHandler = () -> {
+            if (!canvas.isEnabled() && canvas.getInitCalled()) {
+                System.out.println("canvas disabled!");
+                return;
+            }
+            // System.out.println("renderHandler!");
             if (!canvas.isValid()) {
                 GL.setCapabilities(null);
                 return;
@@ -133,6 +137,8 @@ public class App {
                 glVertex2f(0, +0.75f);
                 glEnd();
                 canvas.swapBuffers();
+            } catch (Throwable e) {
+                System.out.printf("paint error: %s\n", e);
             } finally {
                 canvas.afterRender();
             }
@@ -145,18 +151,28 @@ public class App {
                     canvas.disposeCanvas();
                 }
             } catch (InterruptedException ignored) {
+                System.out.println("InterruptedException");
             }
+            // System.out.println("renderHandler ends!");
+        };
+        renderHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
+            testHandler.run();
         };
         String pwd = System.getProperty("user.dir");
         lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEGui.class);
         ui = lib.egui_create(renderHandler);
-        lib.egui_run(ui);
+        // lib.egui_run(ui);
+        Thread t = new Thread(() -> lib.egui_run_block(ui));
+        t.setDaemon(true);
+        t.start();
     }
 
     public void run() throws InterruptedException {
         Thread.sleep(3000);
-        // t.interrupt();
-        Thread.sleep(500);
+        // for (int i = 0; i < 3000; i++) {
+        //     Thread.sleep(1);
+        //     testHandler.run();
+        // }
         System.out.println("all done");
         frame.dispose();
     }
