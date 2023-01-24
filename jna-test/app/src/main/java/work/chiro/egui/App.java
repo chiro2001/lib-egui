@@ -43,7 +43,7 @@ public class App {
         frame.setLayout(new BorderLayout());
         frame.setPreferredSize(new Dimension(600, 600));
         GLData data = new GLData();
-        MyGLCanvas canvas = new MyGLCanvas(data);
+        EGuiGLCanvas canvas = new EGuiGLCanvas(data);
         frame.add(canvas, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);

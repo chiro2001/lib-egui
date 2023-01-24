@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL45.*;
 import static work.chiro.egui.App.signalTerminate;
 import static work.chiro.egui.App.signalTerminated;
 
-public class MyGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler {
+public class EGuiGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler {
     private boolean enabled = false;
     public int eguiTexture;
     public int indexBuffer;
@@ -20,7 +20,7 @@ public class MyGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler {
     public int colorBuffer;
     public int vertexArray;
 
-    protected MyGLCanvas(GLData data) {
+    protected EGuiGLCanvas(GLData data) {
         super(data);
     }
 
@@ -39,30 +39,6 @@ public class MyGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler {
 
     @Override
     public void paintGL() {
-
-    }
-
-    @Override
-    public void beforeRender() {
-        super.beforeRender();
-    }
-
-    @Override
-    public void afterRender() {
-        super.afterRender();
-    }
-
-    boolean getInitCalled() {
-        return initCalled;
-    }
-
-    void setInitCalled(boolean value) {
-        initCalled = value;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
     }
 
     @Override
@@ -98,7 +74,7 @@ public class MyGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler {
 
     @Override
     public void callback(float minX, float minY, float maxX, float maxY, Pointer indices, int indicesLen, Pointer vertices, int verticesLen, Boolean textureManaged, Long textureId) {
-        if (!isEnabled() && getInitCalled()) {
+        if (!enabled && initCalled) {
             System.out.println("canvas disabled!");
             return;
         }
@@ -109,9 +85,9 @@ public class MyGLCanvas extends AWTGLCanvas implements LibEGui.PainterHandler {
         Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
         beforeRender();
         try {
-            if (!getInitCalled()) {
+            if (!initCalled) {
                 initGL();
-                setInitCalled(true);
+                initCalled = true;
             }
             paintMesh(mesh);
         } catch (Throwable e) {
