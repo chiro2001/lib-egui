@@ -6,7 +6,6 @@ package work.chiro.egui;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import org.lwjgl.opengl.GL;
-import org.lwjgl.opengl.awt.AWTGLCanvas;
 import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
@@ -14,58 +13,7 @@ import java.awt.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.*;
-
-class MyGLCanvas extends AWTGLCanvas {
-    private boolean enabled = false;
-
-    protected MyGLCanvas(GLData data) {
-        super(data);
-    }
-
-    @Override
-    public void initGL() {
-        System.out.println("OpenGL version: " + effective.majorVersion + "." + effective.minorVersion + " (Profile: " + effective.profile + ")");
-        createCapabilities();
-        glClearColor(0.3f, 0.4f, 0.5f, 1);
-        enabled = true;
-    }
-
-    @Override
-    public void paintGL() {
-
-    }
-
-    @Override
-    public void beforeRender() {
-        super.beforeRender();
-    }
-
-    @Override
-    public void afterRender() {
-        super.afterRender();
-    }
-
-    boolean getInitCalled() {
-        return initCalled;
-    }
-
-    void setInitCalled(boolean value) {
-        initCalled = value;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    @Override
-    public void disposeCanvas() {
-        enabled = false;
-        super.disposeCanvas();
-    }
-}
 
 public class App {
     static Semaphore signalTerminate = new Semaphore(0);
@@ -120,18 +68,31 @@ public class App {
                 }
                 int w = canvas.getWidth();
                 int h = canvas.getHeight();
-                float aspect = (float) w / h;
-                double now = System.currentTimeMillis() * 0.001;
-                float width = (float) Math.abs(Math.sin(now * 0.3));
+
+                // float aspect = (float) w / h;
+                // double now = System.currentTimeMillis() * 0.001;
+                // float width = (float) Math.abs(Math.sin(now * 0.3));
+                // glClear(GL_COLOR_BUFFER_BIT);
+                // glViewport(0, 0, w, h);
+                // glBegin(GL_QUADS);
+                // glColor3f(0.4f, 0.6f, 0.8f);
+                // glVertex2f(-0.75f * width / aspect, 0.0f);
+                // glVertex2f(0, -0.75f);
+                // glVertex2f(+0.75f * width / aspect, 0);
+                // glVertex2f(0, +0.75f);
+                // glEnd();
+
                 glClear(GL_COLOR_BUFFER_BIT);
                 glViewport(0, 0, w, h);
                 glBegin(GL_QUADS);
                 glColor3f(0.4f, 0.6f, 0.8f);
-                glVertex2f(-0.75f * width / aspect, 0.0f);
-                glVertex2f(0, -0.75f);
-                glVertex2f(+0.75f * width / aspect, 0);
-                glVertex2f(0, +0.75f);
+                // glVertex2f(-0.75f * width / aspect, 0.0f);
+                // glVertex2f(0, -0.75f);
+                // glVertex2f(+0.75f * width / aspect, 0);
+                // glVertex2f(0, +0.75f);
+                // glColor4bv();
                 glEnd();
+
                 canvas.swapBuffers();
             } catch (Throwable e) {
                 System.out.printf("paint error: %s\n", e);
