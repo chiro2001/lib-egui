@@ -52,6 +52,7 @@ public class App {
         Thread.sleep(3000);
         System.out.println("all done");
         frame.dispose();
+        System.exit(0);
     }
 
     public static void main(String[] args) throws InterruptedException {

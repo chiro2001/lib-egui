@@ -37,6 +37,11 @@ public class EguiGLCanvas extends AWTGLCanvas {
         ui = lib.egui_create(() -> {
             if (!enabled && initCalled) {
                 System.out.println("canvas disabled!");
+                try {
+                    Thread.sleep(100);
+                } catch (Throwable ignored) {
+                }
+                // System.exit(0);
                 return false;
             }
             if (!isValid()) {
@@ -81,6 +86,7 @@ public class EguiGLCanvas extends AWTGLCanvas {
                     GL.setCapabilities(null);
                     signalTerminated.release();
                     disposeCanvas();
+                    return false;
                 }
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
