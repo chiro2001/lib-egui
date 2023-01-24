@@ -38,8 +38,9 @@ public class EguiGLCanvas extends AWTGLCanvas {
             if (!enabled && initCalled) {
                 System.out.println("canvas disabled!");
                 try {
-                    Thread.sleep(100);
-                } catch (Throwable ignored) {
+                    Thread.sleep(1000);
+                } catch (Throwable e) {
+                    System.out.printf("when canvas disabled: %s\n", e.toString());
                 }
                 // System.exit(0);
                 return false;
@@ -80,19 +81,6 @@ public class EguiGLCanvas extends AWTGLCanvas {
                 return false;
             }
 
-            try {
-                if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
-                    System.out.println("interrupted");
-                    GL.setCapabilities(null);
-                    signalTerminated.release();
-                    disposeCanvas();
-                    return false;
-                }
-                Thread.sleep(100);
-            } catch (InterruptedException ignored) {
-                System.out.println("InterruptedException");
-                return false;
-            }
             return true;
         }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
             Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
@@ -102,6 +90,18 @@ public class EguiGLCanvas extends AWTGLCanvas {
             glDisable(GL_FRAMEBUFFER_SRGB);
             glDisable(GL_BLEND);
             afterRender();
+
+            try {
+                if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
+                    System.out.println("interrupted");
+                    GL.setCapabilities(null);
+                    signalTerminated.release();
+                    disposeCanvas();
+                }
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+                System.out.println("InterruptedException");
+            }
         });
         Thread thread = new Thread(() -> lib.egui_run_block(ui));
         thread.setDaemon(true);
