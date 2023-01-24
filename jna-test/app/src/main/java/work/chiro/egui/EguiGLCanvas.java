@@ -70,12 +70,12 @@ public class EguiGLCanvas extends AWTGLCanvas {
                 glEnable(GL_SCISSOR_TEST);
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                // glUseProgram(program);
+                glUseProgram(program);
                 glActiveTexture(GL_TEXTURE0);
-                // int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
-                // glUniform2f(screenSizeLoc, w, h);
-                // int samplerLoc = glGetUniformLocation(program, "u_sampler");
-                // glUniform1i(samplerLoc, 0);
+                int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
+                glUniform2f(screenSizeLoc, w, h);
+                int samplerLoc = glGetUniformLocation(program, "u_sampler");
+                glUniform1i(samplerLoc, 0);
                 glViewport(0, 0, w, h);
             } catch (Throwable e) {
                 System.out.printf("paint error: %s\n", e);
@@ -140,8 +140,10 @@ public class EguiGLCanvas extends AWTGLCanvas {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        vertShader = Shader.compile(Shader.VS_SRC, GL_VERTEX_SHADER);
-        fragShader = Shader.compile(Shader.FS_SRC, GL_FRAGMENT_SHADER);
+        vertShader = Shader.compile(Shader.VS_SRC_150, GL_VERTEX_SHADER);
+        fragShader = Shader.compile(Shader.FS_SRC_150, GL_FRAGMENT_SHADER);
+        // vertShader = Shader.compile(Shader.VS_SRC, GL_VERTEX_SHADER);
+        // fragShader = Shader.compile(Shader.FS_SRC, GL_FRAGMENT_SHADER);
         program = Shader.linkProgram(vertShader, fragShader);
 
         vertexArray = glGenVertexArrays();
@@ -174,7 +176,7 @@ public class EguiGLCanvas extends AWTGLCanvas {
     }
 
     public void paintMesh(Mesh mesh) {
-        glBindTexture(GL_TEXTURE_2D, eguiTexture);
+        // glBindTexture(GL_TEXTURE_2D, eguiTexture);
 
         glBindVertexArray(vertexArray);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
@@ -183,13 +185,28 @@ public class EguiGLCanvas extends AWTGLCanvas {
         glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
         glBufferData(GL_ARRAY_BUFFER, mesh.positions, GL_STREAM_DRAW);
 
+        int posLoc = glGetAttribLocation(program, "a_pos");
+        assert posLoc > 0;
+        int stride = 0;
+        glVertexAttribPointer(posLoc, 2, GL_FLAT, false, stride, 0);
+        glEnableVertexAttribArray(posLoc);
+
         glBindBuffer(GL_ARRAY_BUFFER, tcBuffer);
         glBufferData(GL_ARRAY_BUFFER, mesh.texCoords, GL_STREAM_DRAW);
+
+        int tcLoc = glGetAttribLocation(program, "a_tc");
+        assert tcLoc > 0;
+        glVertexAttribPointer(tcLoc, 2, GL_FLAT, false, stride, 0);
+        glEnableVertexAttribArray(tcLoc);
 
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
         glBufferData(GL_ARRAY_BUFFER, mesh.colors, GL_STREAM_DRAW);
 
-        glDrawElements(GL_TRIANGLES, mesh.indices);
+        int srgbaLoc = glGetAttribLocation(program, "a_srgba");
+        assert srgbaLoc > 0;
+        glVertexAttribPointer(srgbaLoc, 4, GL_UNSIGNED_BYTE, false, stride, 0);
+        glEnableVertexAttribArray(srgbaLoc);
 
+        glDrawElements(GL_TRIANGLES, mesh.indices);
     }
 }
