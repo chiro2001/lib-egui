@@ -21,8 +21,8 @@ public class EguiGLCanvas extends AWTGLCanvas {
     public int tcBuffer;
     public int colorBuffer;
     public int vertexArray;
-    public int vertShader;
-    public int fragShader;
+    // public int vertShader;
+    // public int fragShader;
     public int program;
     private final LibEgui lib;
     private Pointer ui;
@@ -81,9 +81,10 @@ public class EguiGLCanvas extends AWTGLCanvas {
                 System.out.printf("paint error: %s\n", e);
                 return false;
             }
-
             return true;
         }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
+            Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+            paintMesh(mesh);
             int w = getWidth();
             int h = getHeight();
             float aspect = (float) w / h;
@@ -98,10 +99,6 @@ public class EguiGLCanvas extends AWTGLCanvas {
             glVertex2f(+0.75f * width / aspect, 0);
             glVertex2f(0, +0.75f);
             glEnd();
-            // swapBuffers();
-
-            Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
-            paintMesh(mesh);
             swapBuffers();
         }, () -> {
             glDisable(GL_SCISSOR_TEST);
@@ -140,8 +137,8 @@ public class EguiGLCanvas extends AWTGLCanvas {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        vertShader = Shader.compile(Shader.VS_SRC_150, GL_VERTEX_SHADER);
-        fragShader = Shader.compile(Shader.FS_SRC_150, GL_FRAGMENT_SHADER);
+        int vertShader = Shader.compile(Shader.VS_SRC_150, GL_VERTEX_SHADER);
+        int fragShader = Shader.compile(Shader.FS_SRC_150, GL_FRAGMENT_SHADER);
         // vertShader = Shader.compile(Shader.VS_SRC, GL_VERTEX_SHADER);
         // fragShader = Shader.compile(Shader.FS_SRC, GL_FRAGMENT_SHADER);
         program = Shader.linkProgram(vertShader, fragShader);
@@ -207,6 +204,10 @@ public class EguiGLCanvas extends AWTGLCanvas {
         glVertexAttribPointer(srgbaLoc, 4, GL_UNSIGNED_BYTE, false, stride, 0);
         glEnableVertexAttribArray(srgbaLoc);
 
-        glDrawElements(GL_TRIANGLES, mesh.indices);
+        // glDrawElements(GL_TRIANGLES, mesh.indices);
+        glDrawElements(GL_TRIANGLES, mesh.indicesLen >> 1, GL_UNSIGNED_SHORT, 0);
+        glDisableVertexAttribArray(posLoc);
+        glDisableVertexAttribArray(tcLoc);
+        glDisableVertexAttribArray(srgbaLoc);
     }
 }
