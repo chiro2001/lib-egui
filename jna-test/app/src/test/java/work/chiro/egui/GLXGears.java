@@ -128,7 +128,7 @@ public class GLXGears {
     }
 
     public void animate() {
-        angle += 2.0;
+        angle += 0.2;
     }
 
     public void setSize(int width, int height) {
