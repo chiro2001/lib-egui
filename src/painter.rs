@@ -1,5 +1,6 @@
 use egui::epaint::{Primitive, Vertex};
 use egui::{ClippedPrimitive, TextureId};
+use tracing::info;
 
 pub type PainterMeshHandler32 = extern "C" fn(
     min_x: f32,
@@ -54,9 +55,26 @@ impl EguiPainter {
     pub fn paint_primitive(&self, primitive: ClippedPrimitive) {
         if let Primitive::Mesh(mesh) = primitive.primitive {
             if (self.before_handler)() {
+                let rect = primitive.clip_rect;
                 for mesh in mesh.split_to_u16() {
                     let indices_len = mesh.indices.len();
                     let vertices_len = mesh.vertices.len();
+                    info!("indices: {:?}", mesh.indices);
+                    // info!("vertices: {:?}", mesh.vertices);
+                    let mut points = Vec::with_capacity(mesh.vertices.len() * 2);
+                    let mut uvs = Vec::with_capacity(mesh.vertices.len() * 2);
+                    let mut colors = Vec::with_capacity(mesh.vertices.len());
+                    for v in &mesh.vertices {
+                        points.push(v.pos.x);
+                        points.push(v.pos.y);
+                        uvs.push(v.uv.x);
+                        uvs.push(v.uv.y);
+                        colors.push(u32::from_be_bytes(v.color.to_array()));
+                    }
+                    // info!("points: {:?}", points);
+                    // info!("uvs: {:?}", uvs);
+                    // info!("colors: {:?}", colors);
+
                     let texture_managed = match mesh.texture_id {
                         TextureId::Managed(_) => true,
                         TextureId::User(_) => false,
@@ -65,7 +83,6 @@ impl EguiPainter {
                         TextureId::Managed(id) => id,
                         TextureId::User(id) => id,
                     };
-                    let rect = primitive.clip_rect;
                     (self.mesh_handler)(
                         rect.min.x,
                         rect.min.y,

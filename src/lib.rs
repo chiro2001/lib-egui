@@ -63,9 +63,11 @@ async fn egui_running(ui: &Egui) {
         let output = ctx.end_frame();
         let shapes = output.shapes;
         let primitives = ctx.tessellate(shapes);
-        let painter = ui.painter.lock().unwrap();
-        for primitive in primitives.into_iter() {
-            painter.paint_primitive(primitive);
+        {
+            let painter = ui.painter.lock().unwrap();
+            for primitive in primitives.into_iter() {
+                painter.paint_primitive(primitive);
+            }
         }
 
         // sleep(Duration::from_millis(100));
