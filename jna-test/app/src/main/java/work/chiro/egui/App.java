@@ -19,23 +19,25 @@ public class App {
     private final JFrame frame;
     private final LibEgui lib;
     private Pointer ui;
+    EguiGL egui;
 
     public static void doTerminate() {
-        // request the cleanup
+        System.out.println("request the cleanup");
         signalTerminate.release();
         try {
-            // wait until the thread is done with the cleanup
+            System.out.println("wait until the thread is done with the cleanup");
             boolean _i = signalTerminated.tryAcquire(300, TimeUnit.MILLISECONDS);
             // signalTerminated.acquire();
         } catch (InterruptedException ignored) {
         }
+        System.out.println("doTerminate done");
     }
 
     public App() {
         frame = new JFrame("AWT test") {
             @Override
             public void dispose() {
-                doTerminate();
+                // doTerminate();
                 super.dispose();
             }
         };
@@ -47,7 +49,7 @@ public class App {
         data.swapInterval = 0;
         String pwd = System.getProperty("user.dir");
         lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEgui.class);
-        EguiGL egui = new EguiGL();
+        egui = new EguiGL();
         MyGLCanvas canvas = new MyGLCanvas(data, egui::init);
         ui = lib.egui_create(() -> {
             if (!canvas.isValid()) {
@@ -68,17 +70,32 @@ public class App {
         frame.add(canvas, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
-        frame.transferFocus();
-        Thread thread = new Thread(() -> lib.egui_run_block(ui));
-        thread.setDaemon(true);
-        thread.start();
+        // frame.transferFocus();
     }
 
     public void run() throws InterruptedException {
-        Thread.sleep(3000);
+        Thread thread = new Thread(() -> lib.egui_run_block(ui));
+        thread.setDaemon(true);
+        thread.start();
+        egui.setQuitListener(() -> {
+            // System.out.println("before egui_quit");
+            // lib.egui_quit(ui);
+            // System.out.println("after egui_quit");
+            // frame.setVisible(false);
+            // System.out.println("after unset visible");
+            // frame.dispose();
+            // System.out.println("after dispose");
+        });
+
+        Thread.sleep(1000);
+        lib.egui_quit(ui);
+        Thread.sleep(1000);
         System.out.println("all done");
+        doTerminate();
+        // thread.interrupt();
         frame.dispose();
-        System.exit(0);
+        // System.exit(0);
+        System.out.println("run done");
     }
 
     public static void main(String[] args) throws InterruptedException {

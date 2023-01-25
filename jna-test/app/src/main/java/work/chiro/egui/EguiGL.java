@@ -27,7 +27,7 @@ public class EguiGL {
     // private final LibEgui lib;
     // private Pointer ui;
     private boolean valid;
-
+    private Runnable quitListener = null;
 
     public EguiGL() {
         // String pwd = System.getProperty("user.dir");
@@ -125,6 +125,9 @@ public class EguiGL {
                 signalTerminated.release();
                 // disposeCanvas();
                 valid = false;
+                System.out.println("quiting");
+                quitListener.run();
+                System.out.println("quit listener called");
             }
             Thread.sleep(1);
         } catch (InterruptedException ignored) {
@@ -228,5 +231,9 @@ public class EguiGL {
         glDisableVertexAttribArray(posLoc);
         glDisableVertexAttribArray(tcLoc);
         glDisableVertexAttribArray(srgbaLoc);
+    }
+
+    public void setQuitListener(Runnable quitListener) {
+        this.quitListener = quitListener;
     }
 }

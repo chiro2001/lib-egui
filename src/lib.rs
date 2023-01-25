@@ -5,7 +5,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use tracing::debug;
+use tracing::{debug, info};
 
 mod basic;
 pub mod events;
@@ -74,13 +74,13 @@ async fn egui_running(ui: &Egui) {
         sleep(Duration::from_millis(1));
         let quit = ui.quit.lock().unwrap();
         if *quit {
-            debug!("egui_running will quit!");
+            info!("egui_running will quit!");
             break;
         }
     }
     let mut quit_done = ui.quit_done.lock().unwrap();
     *quit_done = true;
-    debug!("egui_running quit");
+    info!("egui_running quit");
 }
 
 #[no_mangle]
@@ -97,19 +97,28 @@ pub unsafe extern "C" fn egui_run_block(g: *mut Egui) {
 
 #[no_mangle]
 pub unsafe extern "C" fn egui_quit(g: *mut Egui) {
-    debug!("egui_quit...");
+    info!("egui_quit...");
     let ui = egui_cast(g);
     {
         // must first release `quit`
         let mut quit = ui.quit.lock().unwrap();
         *quit = true;
-        debug!("set quit flag");
+        info!("set quit flag");
     }
+    let mut count = 0u64;
+    let delay_ms = 1000 / 10;
+    let d = 10u64;
     loop {
-        sleep(Duration::from_millis(10));
-        debug!("getting quit_done flag...");
+        sleep(Duration::from_millis(d));
+        info!("getting quit_done flag...");
         let quit_done = ui.quit_done.lock().unwrap();
         if *quit_done {
+            info!("normally quit process");
+            break;
+        }
+        count += d;
+        if count >= delay_ms {
+            info!("wait timeout, quit process");
             break;
         }
     }
