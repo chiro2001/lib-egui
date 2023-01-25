@@ -59,7 +59,7 @@ impl EguiPainter {
                 for mesh in mesh.split_to_u16() {
                     let indices_len = mesh.indices.len();
                     let vertices_len = mesh.vertices.len();
-                    info!("indices: {:?}", mesh.indices);
+                    // info!("indices: {:?}", mesh.indices);
                     // info!("vertices: {:?}", mesh.vertices);
                     let mut points = Vec::with_capacity(mesh.vertices.len() * 2);
                     let mut uvs = Vec::with_capacity(mesh.vertices.len() * 2);

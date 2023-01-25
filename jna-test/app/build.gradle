@@ -84,4 +84,7 @@ dependencies {
     // https://mvnrepository.com/artifact/org.lwjglx/lwjgl3-awt
     implementation 'org.lwjglx:lwjgl3-awt:0.1.8'
 
+    // https://mvnrepository.com/artifact/org.joml/joml
+    implementation 'org.joml:joml:1.10.5'
+
 }
