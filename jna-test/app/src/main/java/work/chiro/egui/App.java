@@ -5,6 +5,7 @@ package work.chiro.egui;
 
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
+import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
@@ -16,6 +17,8 @@ public class App {
     static Semaphore signalTerminate = new Semaphore(0);
     static Semaphore signalTerminated = new Semaphore(0);
     private final JFrame frame;
+    private final LibEgui lib;
+    private Pointer ui;
 
     public static void doTerminate() {
         // request the cleanup
@@ -40,12 +43,35 @@ public class App {
         frame.setLayout(new BorderLayout());
         frame.setPreferredSize(new Dimension(600, 600));
         GLData data = new GLData();
-        EguiGLCanvas canvas = new EguiGLCanvas(data);
+        data.samples = 4;
+        data.swapInterval = 0;
+        String pwd = System.getProperty("user.dir");
+        lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEgui.class);
+        EguiGL egui = new EguiGL();
+        MyGLCanvas canvas = new MyGLCanvas(data, egui::init);
+        ui = lib.egui_create(() -> {
+            if (!canvas.isValid()) {
+                GL.setCapabilities(null);
+                return false;
+            }
+            canvas.beforeRender();
+            if (!canvas.getInitCalled()) {
+                canvas.initGL();
+                canvas.setInitCalled();
+                return false;
+            }
+            return egui.beforeHandler.callback();
+        }, egui.meshHandler, () -> {
+            egui.afterHandler.callback();
+            canvas.afterRender();
+        });
         frame.add(canvas, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
         frame.transferFocus();
-        canvas.start();
+        Thread thread = new Thread(() -> lib.egui_run_block(ui));
+        thread.setDaemon(true);
+        thread.start();
     }
 
     public void run() throws InterruptedException {

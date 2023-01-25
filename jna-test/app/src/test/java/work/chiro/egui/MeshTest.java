@@ -42,7 +42,6 @@ public class MeshTest {
             private int vertexArray;
             private int program;
             private int eguiTexture;
-            @Serial
             private static final long serialVersionUID = 1L;
 
             @Override

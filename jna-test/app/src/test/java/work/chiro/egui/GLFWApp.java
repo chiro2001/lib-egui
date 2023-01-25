@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
 
 import java.nio.IntBuffer;
@@ -26,7 +25,7 @@ import static work.chiro.egui.GLFWUtil.glfwInvoke;
 /**
  * The Gears demo implemented using GLFW.
  */
-public class Gears {
+public class GLFWApp {
 
     private GLFWAllocator allocator;
     private Callback debugProc;
@@ -41,7 +40,7 @@ public class Gears {
     private GLXGears gears;
 
     public static void main(String[] args) {
-        new Gears().run();
+        new GLFWApp().run();
     }
 
     private void run() {
