@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.joml.Math.*;
+import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL30C.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.memAllocFloat;
@@ -87,8 +88,8 @@ public class GLXGears {
         P.setFrustum(-1.0, 1.0, -1.0, 1.0, 5.0, 100.0);
 
         try {
-            ByteBuffer vs = ioResourceToByteBuffer("demo/gears/gears.vert", 4096);
-            ByteBuffer fs = ioResourceToByteBuffer("demo/gears/gears.frag", 4096);
+            ByteBuffer vs = ioResourceToByteBuffer("shaders/gears.vert", 4096);
+            ByteBuffer fs = ioResourceToByteBuffer("shaders/gears.frag", 4096);
 
             int version;
             if (caps.OpenGL33) {
@@ -503,17 +504,17 @@ public class GLXGears {
         GLData data = new GLData();
         AWTGLCanvas canvas;
         frame.add(canvas = new AWTGLCanvas(data) {
-            GLXGears x = null;
+            GLXGears g;
+
             @Override
             public void initGL() {
+                createCapabilities();
+                g = new GLXGears();
             }
 
             @Override
             public void paintGL() {
-                // if (x == null) {
-                //     x = new GLXGears();
-                // }
-                // x.render();
+                g.render();
             }
         }, BorderLayout.CENTER);
         frame.pack();
