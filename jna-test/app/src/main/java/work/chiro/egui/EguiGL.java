@@ -1,9 +1,5 @@
 package work.chiro.egui;
 
-import org.lwjgl.opengl.GL;
-
-import java.util.concurrent.TimeUnit;
-
 import static org.lwjgl.opengl.GL11C.GL_RENDERER;
 import static org.lwjgl.opengl.GL11C.GL_VENDOR;
 import static org.lwjgl.opengl.GL11C.GL_VERSION;
@@ -11,24 +7,16 @@ import static org.lwjgl.opengl.GL11C.glGetString;
 import static org.lwjgl.opengl.GL45.*;
 
 public class EguiGL {
-    // private boolean enabled = false;
     public int eguiTexture;
     public int indexBuffer;
     public int posBuffer;
     public int tcBuffer;
     public int colorBuffer;
     public int vertexArray;
-    // public int vertShader;
-    // public int fragShader;
     public int program;
-    // private final LibEgui lib;
-    // private Pointer ui;
     private boolean valid;
-    private Runnable quitListener = null;
 
     public EguiGL() {
-        // String pwd = System.getProperty("user.dir");
-        // lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEgui.class);
         valid = true;
     }
 
@@ -52,7 +40,7 @@ public class EguiGL {
             glEnable(GL_SCISSOR_TEST);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            // glUseProgram(program);
+            glUseProgram(program);
             glActiveTexture(GL_TEXTURE0);
             int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
             glUniform2f(screenSizeLoc, w, h);
@@ -67,24 +55,24 @@ public class EguiGL {
     };
     LibEgui.PainterMeshHandler meshHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
         // System.out.println("mesh");
-        // Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
-        // paintMesh(mesh);
+        Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+        paintMesh(mesh);
         // int w = getWidth();
         // int h = getHeight();
-        int w = 600;
-        int h = 600;
-        float aspect = (float) w / h;
-        double now = System.currentTimeMillis() * 0.001;
-        float width = (float) Math.abs(Math.sin(now * 0.3));
-        glClear(GL_COLOR_BUFFER_BIT);
-        glViewport(0, 0, w, h);
-        glBegin(GL_QUADS);
-        glColor3f(0.4f, 0.6f, 0.8f);
-        glVertex2f(-0.75f * width / aspect, 0.0f);
-        glVertex2f(0, -0.75f);
-        glVertex2f(+0.75f * width / aspect, 0);
-        glVertex2f(0, +0.75f);
-        glEnd();
+        // int w = 600;
+        // int h = 600;
+        // float aspect = (float) w / h;
+        // double now = System.currentTimeMillis() * 0.001;
+        // float width = (float) Math.abs(Math.sin(now * 0.3));
+        // glClear(GL_COLOR_BUFFER_BIT);
+        // glViewport(0, 0, w, h);
+        // glBegin(GL_QUADS);
+        // glColor3f(0.4f, 0.6f, 0.8f);
+        // glVertex2f(-0.75f * width / aspect, 0.0f);
+        // glVertex2f(0, -0.75f);
+        // glVertex2f(+0.75f * width / aspect, 0);
+        // glVertex2f(0, +0.75f);
+        // glEnd();
     };
 
     LibEgui.VoidHandler afterHandler = () -> {
@@ -94,22 +82,11 @@ public class EguiGL {
         glDisable(GL_BLEND);
     };
 
-    // public void start() {
-    //     // ui = lib.egui_create(, , );
-    //     // Thread thread = new Thread(() -> lib.egui_run_block(ui));
-    //     // thread.setDaemon(true);
-    //     // thread.start();
-    // }
-
-    // @Override
     public void init() {
         System.err.println("GL_VENDOR: " + glGetString(GL_VENDOR));
         System.err.println("GL_RENDERER: " + glGetString(GL_RENDERER));
         System.err.println("GL_VERSION: " + glGetString(GL_VERSION));
-        // System.out.println("OpenGL version: " + effective.majorVersion + "." + effective.minorVersion + " (Profile: " + effective.profile + ")");
-        // createCapabilities();
         glClearColor(0.3f, 0.4f, 0.5f, 1);
-        // enabled = true;
         eguiTexture = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, eguiTexture);
 
@@ -137,21 +114,6 @@ public class EguiGL {
         glDeleteShader(vertShader);
         glDeleteShader(fragShader);
     }
-
-    // @Override
-    // public void paintGL() {
-    // }
-
-    // @Override
-    // public void disposeCanvas() {
-    //     super.disposeCanvas();
-    //     enabled = false;
-    //     // glDeleteBuffers(indexBuffer);
-    //     // glDeleteBuffers(posBuffer);
-    //     // glDeleteBuffers(colorBuffer);
-    //     // glDeleteTextures(eguiTexture);
-    //     // glDeleteVertexArrays(vertexArray);
-    // }
 
     public void paintMesh(Mesh mesh) {
         // glBindTexture(GL_TEXTURE_2D, eguiTexture);
@@ -190,9 +152,5 @@ public class EguiGL {
         glDisableVertexAttribArray(posLoc);
         glDisableVertexAttribArray(tcLoc);
         glDisableVertexAttribArray(srgbaLoc);
-    }
-
-    public void setQuitListener(Runnable quitListener) {
-        this.quitListener = quitListener;
     }
 }

@@ -10,48 +10,32 @@ import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class App {
     private final JFrame frame;
     private LibEgui lib;
     private Pointer ui;
     EguiGL egui;
-    static MyGLCanvas canvas = null;
+    MyGLCanvas canvas;
     static Thread thread = null;
 
     boolean terminated = false;
+
     public void doTerminate() throws InterruptedException {
         if (terminated) return;
         terminated = true;
         System.out.println("doTerminate done");
         System.out.println("main acquiring terminated");
-        // signalTerminated.acquire();
         lib.egui_quit(ui);
-        // Thread.sleep(1000);
         thread.join();
         System.out.println("main: dispose canvas");
         GL.setCapabilities(null);
-        // canvas.disposeCanvas();
         System.out.println("main: dispose canvas done");
         System.out.println("all done");
-        // doTerminate();
-        // thread.interrupt();
-        // canvas.disposeCanvas();
-        // System.out.println("remove canvas");
-        // // canvas.doDisposeCanvas();
-        // frame.remove(canvas);
-        // canvas = null;
-        // System.out.println("remove canvas done");
         System.out.println("main: disposing frame");
         frame.dispose();
         System.out.println("main: disposed frame");
-        // lib.egui_quit(ui);
-        // System.exit(0);
         System.out.println("run done");
         Thread.currentThread().interrupt();
     }
@@ -85,7 +69,7 @@ public class App {
             String text = String.format("frame: %d", count.get());
             label.setText(text);
 
-            if (canvas == null) return false;
+            // if (canvas == null) return false;
             if (!canvas.isValid()) {
                 GL.setCapabilities(null);
                 return false;
@@ -95,16 +79,15 @@ public class App {
                 canvas.initGL();
                 canvas.setInitCalled();
             }
-            return egui.beforeHandler.callback();
-        }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
-            egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
-            // canvas.swapBuffers();
-        }, () -> {
-            egui.afterHandler.callback();
-            if (canvas != null) {
-                canvas.swapBuffers();
+            boolean r = egui.beforeHandler.callback();
+            if (!r) {
                 canvas.afterRender();
             }
+            return r;
+        }, egui.meshHandler, () -> {
+            egui.afterHandler.callback();
+            canvas.swapBuffers();
+            canvas.afterRender();
         });
         frame.add(canvas, BorderLayout.CENTER);
         frame.add(label, BorderLayout.SOUTH);
@@ -113,31 +96,13 @@ public class App {
         frame.transferFocus();
     }
 
-    public void run() throws InterruptedException {
-        thread = new Thread(() -> {
-            lib.egui_run_block(ui);
-            System.out.println("egui_run_block done");
-        });
-        thread.setDaemon(true);
-        thread.start();
-        egui.setQuitListener(() -> {
-            System.out.println("quit listener: dispose canvas");
-            GL.setCapabilities(null);
-            canvas.afterRender();
-            canvas.doDisposeCanvas();
-            canvas = null;
-        });
-
-        // Thread.sleep(10000);
-        // doTerminate();
+    public void run() {
+        lib.egui_run_block(ui);
     }
 
     public static void main(String[] args) {
         App app = new App();
-        try {
-            app.run();
-        } catch (InterruptedException ignored) {
-            System.out.println("exit");
-        }
+        app.run();
+        System.out.println("exit");
     }
 }
