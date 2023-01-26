@@ -14,6 +14,8 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.lwjgl.opengl.GL11.*;
+
 public class App {
     static Semaphore signalTerminate = new Semaphore(0);
     static Semaphore signalTerminated = new Semaphore(0);
@@ -67,12 +69,7 @@ public class App {
             count.getAndIncrement();
             String text = String.format("frame: %d", count.get());
             label.setText(text);
-            System.out.println(text);
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+
             if (canvas == null) return false;
             if (!canvas.isValid()) {
                 GL.setCapabilities(null);
@@ -82,9 +79,36 @@ public class App {
             if (!canvas.getInitCalled()) {
                 canvas.initGL();
                 canvas.setInitCalled();
-                return false;
+                // return false;
             }
             return egui.beforeHandler.callback();
+            // return false;
+
+            // if (canvas != null) {
+            //     canvas.beforeRender();
+            //     if (!canvas.getInitCalled()) {
+            //         canvas.initGL();
+            //         canvas.setInitCalled();
+            //     }
+            //
+            //     int w = canvas.getWidth();
+            //     int h = canvas.getHeight();
+            //     float aspect = (float) w / h;
+            //     double now = System.currentTimeMillis() * 0.001;
+            //     float width = (float) Math.abs(Math.sin(now * 0.3));
+            //     glClear(GL_COLOR_BUFFER_BIT);
+            //     glViewport(0, 0, w, h);
+            //     glBegin(GL_QUADS);
+            //     glColor3f(0.4f, 0.6f, 0.8f);
+            //     glVertex2f(-0.75f * width / aspect, 0.0f);
+            //     glVertex2f(0, -0.75f);
+            //     glVertex2f(+0.75f * width / aspect, 0);
+            //     glVertex2f(0, +0.75f);
+            //     glEnd();
+            //     canvas.swapBuffers();
+            //
+            //     canvas.afterRender();
+            // }
             // return false;
         }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
             egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
