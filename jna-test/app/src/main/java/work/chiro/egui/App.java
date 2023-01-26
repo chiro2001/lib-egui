@@ -12,6 +12,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class App {
     static Semaphore signalTerminate = new Semaphore(0);
@@ -43,7 +44,7 @@ public class App {
     }
 
     public App() {
-        frame = new JFrame("AWT test") {
+        frame = new JFrame("egui OpenGL Test") {
             @Override
             public void dispose() {
                 // doTerminate();
@@ -60,7 +61,19 @@ public class App {
         lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEgui.class);
         egui = new EguiGL();
         canvas = new MyGLCanvas(data, egui::init);
+        AtomicInteger count = new AtomicInteger();
+        JLabel label = new JLabel("counting");
         ui = lib.egui_create(() -> {
+            count.getAndIncrement();
+            String text = String.format("frame: %d", count.get());
+            label.setText(text);
+            System.out.println(text);
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if (canvas == null) return false;
             if (!canvas.isValid()) {
                 GL.setCapabilities(null);
                 return false;
@@ -72,9 +85,10 @@ public class App {
                 return false;
             }
             return egui.beforeHandler.callback();
+            // return false;
         }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
-            // egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
-            canvas.swapBuffers();
+            egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+            // canvas.swapBuffers();
         }, () -> {
             egui.afterHandler.callback();
             if (canvas != null) {
@@ -82,7 +96,22 @@ public class App {
                 canvas.afterRender();
             }
         });
+        // ui = lib.egui_create(() -> {
+        //     count.getAndIncrement();
+        //     String text = String.format("counting: %d", count.get());
+        //     label.setText(text);
+        //     System.out.println(text);
+        //     try {
+        //         Thread.sleep(100);
+        //     } catch (InterruptedException e) {
+        //         throw new RuntimeException(e);
+        //     }
+        //     return false;
+        // }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
+        // }, () -> {
+        // });
         frame.add(canvas, BorderLayout.CENTER);
+        frame.add(label, BorderLayout.SOUTH);
         frame.pack();
         frame.setVisible(true);
         // frame.transferFocus();
@@ -114,7 +143,7 @@ public class App {
         Thread.sleep(1000);
         signalTerminate.release();
         System.out.println("main acquiring terminated");
-        signalTerminated.acquire();
+        // signalTerminated.acquire();
         lib.egui_quit(ui);
         // Thread.sleep(1000);
         thread.join();

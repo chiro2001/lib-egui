@@ -8,6 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11.*;
@@ -85,6 +86,9 @@ public class AWTThreadTest {
             }
 
         }, BorderLayout.CENTER);
+        AtomicInteger count = new AtomicInteger();
+        JLabel label = new JLabel("counting");
+        frame.add(label, BorderLayout.SOUTH);
         frame.pack();
         frame.setVisible(true);
         frame.transferFocus();
@@ -92,6 +96,7 @@ public class AWTThreadTest {
         Runnable renderLoop = () -> {
             while (true) {
                 canvas.render();
+                label.setText(String.format("frame: %d", count.incrementAndGet()));
                 try {
                     Thread.sleep(1);
                 } catch (InterruptedException e) {
