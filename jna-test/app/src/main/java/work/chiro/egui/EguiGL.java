@@ -4,14 +4,11 @@ import org.lwjgl.opengl.GL;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.lwjgl.opengl.GL.createCapabilities;
 import static org.lwjgl.opengl.GL11C.GL_RENDERER;
 import static org.lwjgl.opengl.GL11C.GL_VENDOR;
 import static org.lwjgl.opengl.GL11C.GL_VERSION;
 import static org.lwjgl.opengl.GL11C.glGetString;
 import static org.lwjgl.opengl.GL45.*;
-import static work.chiro.egui.App.signalTerminate;
-import static work.chiro.egui.App.signalTerminated;
 
 public class EguiGL {
     // private boolean enabled = false;
@@ -38,7 +35,7 @@ public class EguiGL {
     LibEgui.PainterBeforeHandler beforeHandler = () -> {
         if (!valid) return false;
         try {
-            System.out.println("before");
+            // System.out.println("before");
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
@@ -69,7 +66,7 @@ public class EguiGL {
         return true;
     };
     LibEgui.PainterMeshHandler meshHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
-        System.out.println("mesh");
+        // System.out.println("mesh");
         // Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
         // paintMesh(mesh);
         // int w = getWidth();
@@ -91,27 +88,10 @@ public class EguiGL {
     };
 
     LibEgui.VoidHandler afterHandler = () -> {
-        System.out.println("after");
+        // System.out.println("after");
         glDisable(GL_SCISSOR_TEST);
         glDisable(GL_FRAMEBUFFER_SRGB);
         glDisable(GL_BLEND);
-        try {
-            if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
-                System.out.println("interrupted");
-                GL.setCapabilities(null);
-                // signalTerminated.release();
-                // disposeCanvas();
-                valid = false;
-                System.out.println("quiting");
-                quitListener.run();
-                System.out.println("quit listener called");
-                signalTerminated.release();
-            }
-            // Thread.sleep(1);
-            Thread.sleep(100);
-        } catch (InterruptedException ignored) {
-            System.out.println("InterruptedException");
-        }
     };
 
     // public void start() {

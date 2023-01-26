@@ -17,8 +17,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.lwjgl.opengl.GL11.*;
 
 public class App {
-    static Semaphore signalTerminate = new Semaphore(0);
-    static Semaphore signalTerminated = new Semaphore(0);
     private final JFrame frame;
     private LibEgui lib;
     private Pointer ui;
@@ -26,30 +24,47 @@ public class App {
     static MyGLCanvas canvas = null;
     static Thread thread = null;
 
-    public static void doTerminate() {
-        System.out.println("request the cleanup");
-        signalTerminate.release();
-        try {
-            System.out.println("wait until the thread is done with the cleanup");
-            thread.interrupt();
-            boolean _i = signalTerminated.tryAcquire(10000, TimeUnit.MILLISECONDS);
-            // signalTerminated.acquire();
-            if (canvas != null) {
-                GL.setCapabilities(null);
-                System.out.println("do terminate: dispose canvas");
-                canvas.disposeCanvas();
-                System.out.println("do terminate: dispose canvas done");
-            }
-        } catch (InterruptedException ignored) {
-        }
+    boolean terminated = false;
+    public void doTerminate() throws InterruptedException {
+        if (terminated) return;
+        terminated = true;
         System.out.println("doTerminate done");
+        System.out.println("main acquiring terminated");
+        // signalTerminated.acquire();
+        lib.egui_quit(ui);
+        // Thread.sleep(1000);
+        thread.join();
+        System.out.println("main: dispose canvas");
+        GL.setCapabilities(null);
+        // canvas.disposeCanvas();
+        System.out.println("main: dispose canvas done");
+        System.out.println("all done");
+        // doTerminate();
+        // thread.interrupt();
+        // canvas.disposeCanvas();
+        // System.out.println("remove canvas");
+        // // canvas.doDisposeCanvas();
+        // frame.remove(canvas);
+        // canvas = null;
+        // System.out.println("remove canvas done");
+        System.out.println("main: disposing frame");
+        frame.dispose();
+        System.out.println("main: disposed frame");
+        // lib.egui_quit(ui);
+        // System.exit(0);
+        System.out.println("run done");
+        Thread.currentThread().interrupt();
     }
 
     public App() {
         frame = new JFrame("egui OpenGL Test") {
             @Override
             public void dispose() {
-                // doTerminate();
+                try {
+                    doTerminate();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 super.dispose();
             }
         };
@@ -113,40 +128,16 @@ public class App {
             canvas = null;
         });
 
-        Thread.sleep(1000);
-        signalTerminate.release();
-        System.out.println("main acquiring terminated");
-        // signalTerminated.acquire();
-        lib.egui_quit(ui);
-        // Thread.sleep(1000);
-        thread.join();
-        thread = null;
-        ui = null;
-        lib = null;
-        egui = null;
-        System.out.println("main: dispose canvas");
-        GL.setCapabilities(null);
-        // canvas.disposeCanvas();
-        System.out.println("main: dispose canvas done");
-        System.out.println("all done");
+        // Thread.sleep(10000);
         // doTerminate();
-        // thread.interrupt();
-        // canvas.disposeCanvas();
-        // System.out.println("remove canvas");
-        // // canvas.doDisposeCanvas();
-        // frame.remove(canvas);
-        // canvas = null;
-        // System.out.println("remove canvas done");
-        System.out.println("main: disposing frame");
-        frame.dispose();
-        System.out.println("main: disposed frame");
-        // lib.egui_quit(ui);
-        // System.exit(0);
-        System.out.println("run done");
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         App app = new App();
-        app.run();
+        try {
+            app.run();
+        } catch (InterruptedException ignored) {
+            System.out.println("exit");
+        }
     }
 }
