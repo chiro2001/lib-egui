@@ -18,8 +18,6 @@ public class App {
     private Pointer ui;
     EguiGL egui;
     MyGLCanvas canvas;
-    static Thread thread = null;
-
     boolean terminated = false;
 
     public void doTerminate() throws InterruptedException {
@@ -28,7 +26,6 @@ public class App {
         System.out.println("doTerminate done");
         System.out.println("main acquiring terminated");
         lib.egui_quit(ui);
-        thread.join();
         System.out.println("main: dispose canvas");
         GL.setCapabilities(null);
         System.out.println("main: dispose canvas done");

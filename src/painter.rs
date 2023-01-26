@@ -1,6 +1,5 @@
 use egui::epaint::{Primitive, Vertex};
 use egui::{ClippedPrimitive, TextureId};
-use tracing::info;
 
 pub type PainterMeshHandler32 = extern "C" fn(
     min_x: f32,

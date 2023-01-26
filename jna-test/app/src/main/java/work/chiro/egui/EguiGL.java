@@ -40,7 +40,7 @@ public class EguiGL {
             glEnable(GL_SCISSOR_TEST);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            glUseProgram(program);
+            // glUseProgram(program);
             glActiveTexture(GL_TEXTURE0);
             int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
             glUniform2f(screenSizeLoc, w, h);
@@ -55,24 +55,22 @@ public class EguiGL {
     };
     LibEgui.PainterMeshHandler meshHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
         // System.out.println("mesh");
-        Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
-        paintMesh(mesh);
-        // int w = getWidth();
-        // int h = getHeight();
-        // int w = 600;
-        // int h = 600;
-        // float aspect = (float) w / h;
-        // double now = System.currentTimeMillis() * 0.001;
-        // float width = (float) Math.abs(Math.sin(now * 0.3));
-        // glClear(GL_COLOR_BUFFER_BIT);
-        // glViewport(0, 0, w, h);
-        // glBegin(GL_QUADS);
-        // glColor3f(0.4f, 0.6f, 0.8f);
-        // glVertex2f(-0.75f * width / aspect, 0.0f);
-        // glVertex2f(0, -0.75f);
-        // glVertex2f(+0.75f * width / aspect, 0);
-        // glVertex2f(0, +0.75f);
-        // glEnd();
+        // Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+        // paintMesh(mesh);
+        int w = 600;
+        int h = 600;
+        float aspect = (float) w / h;
+        double now = System.currentTimeMillis() * 0.001;
+        float width = (float) Math.abs(Math.sin(now * 0.3));
+        glClear(GL_COLOR_BUFFER_BIT);
+        glViewport(0, 0, w, h);
+        glBegin(GL_QUADS);
+        glColor3f(0.4f, 0.6f, 0.8f);
+        glVertex2f(-0.75f * width / aspect, 0.0f);
+        glVertex2f(0, -0.75f);
+        glVertex2f(+0.75f * width / aspect, 0);
+        glVertex2f(0, +0.75f);
+        glEnd();
     };
 
     LibEgui.VoidHandler afterHandler = () -> {
