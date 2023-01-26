@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class App {
     private final JFrame frame;
-    private LibEgui lib;
-    private Pointer ui;
+    private final LibEgui lib;
+    private final Pointer ui;
     EguiGL egui;
     MyGLCanvas canvas;
     boolean terminated = false;

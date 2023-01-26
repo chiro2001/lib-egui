@@ -5,7 +5,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use tracing::{debug, info};
+use tracing::{debug, info, trace};
 
 mod basic;
 pub mod events;
@@ -49,11 +49,12 @@ pub extern "C" fn egui_create(before: *const (), mesh: *const (), after: *const 
     e
 }
 
-fn egui_running(ui: &Egui) {
+fn egui_running(ui: &mut Egui) {
     let ctx = egui::Context::default();
     info!("egui_running start");
     loop {
-        // debug!("egui thread running");
+        ui.frame_count += 1;
+        trace!("egui frame: {}", ui.frame_count);
         let start_time = Instant::now();
         let mut state = ui.state.lock().unwrap();
         state.input.time = Some(start_time.elapsed().as_secs_f64());
