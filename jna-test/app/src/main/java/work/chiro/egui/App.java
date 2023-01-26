@@ -17,17 +17,26 @@ public class App {
     static Semaphore signalTerminate = new Semaphore(0);
     static Semaphore signalTerminated = new Semaphore(0);
     private final JFrame frame;
-    private final LibEgui lib;
+    private LibEgui lib;
     private Pointer ui;
     EguiGL egui;
+    static MyGLCanvas canvas = null;
+    static Thread thread = null;
 
     public static void doTerminate() {
         System.out.println("request the cleanup");
         signalTerminate.release();
         try {
             System.out.println("wait until the thread is done with the cleanup");
-            boolean _i = signalTerminated.tryAcquire(300, TimeUnit.MILLISECONDS);
+            thread.interrupt();
+            boolean _i = signalTerminated.tryAcquire(10000, TimeUnit.MILLISECONDS);
             // signalTerminated.acquire();
+            if (canvas != null) {
+                GL.setCapabilities(null);
+                System.out.println("do terminate: dispose canvas");
+                canvas.disposeCanvas();
+                System.out.println("do terminate: dispose canvas done");
+            }
         } catch (InterruptedException ignored) {
         }
         System.out.println("doTerminate done");
@@ -50,7 +59,7 @@ public class App {
         String pwd = System.getProperty("user.dir");
         lib = Native.load(String.format("%s/../target/debug/libegui.so", pwd), LibEgui.class);
         egui = new EguiGL();
-        MyGLCanvas canvas = new MyGLCanvas(data, egui::init);
+        canvas = new MyGLCanvas(data, egui::init);
         ui = lib.egui_create(() -> {
             if (!canvas.isValid()) {
                 GL.setCapabilities(null);
@@ -63,9 +72,15 @@ public class App {
                 return false;
             }
             return egui.beforeHandler.callback();
-        }, egui.meshHandler, () -> {
+        }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
+            // egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+            canvas.swapBuffers();
+        }, () -> {
             egui.afterHandler.callback();
-            canvas.afterRender();
+            if (canvas != null) {
+                canvas.swapBuffers();
+                canvas.afterRender();
+            }
         });
         frame.add(canvas, BorderLayout.CENTER);
         frame.pack();
@@ -74,7 +89,10 @@ public class App {
     }
 
     public void run() throws InterruptedException {
-        Thread thread = new Thread(() -> lib.egui_run_block(ui));
+        thread = new Thread(() -> {
+            lib.egui_run_block(ui);
+            System.out.println("egui_run_block done");
+        });
         thread.setDaemon(true);
         thread.start();
         egui.setQuitListener(() -> {
@@ -85,15 +103,42 @@ public class App {
             // System.out.println("after unset visible");
             // frame.dispose();
             // System.out.println("after dispose");
+            System.out.println("quit listener: dispose canvas");
+            // canvas.disposeCanvas();
+            GL.setCapabilities(null);
+            canvas.afterRender();
+            canvas.doDisposeCanvas();
+            canvas = null;
         });
 
         Thread.sleep(1000);
+        signalTerminate.release();
+        System.out.println("main acquiring terminated");
+        signalTerminated.acquire();
         lib.egui_quit(ui);
-        Thread.sleep(1000);
+        // Thread.sleep(1000);
+        thread.join();
+        thread = null;
+        ui = null;
+        lib = null;
+        egui = null;
+        System.out.println("main: dispose canvas");
+        GL.setCapabilities(null);
+        // canvas.disposeCanvas();
+        System.out.println("main: dispose canvas done");
         System.out.println("all done");
-        doTerminate();
+        // doTerminate();
         // thread.interrupt();
+        // canvas.disposeCanvas();
+        // System.out.println("remove canvas");
+        // // canvas.doDisposeCanvas();
+        // frame.remove(canvas);
+        // canvas = null;
+        // System.out.println("remove canvas done");
+        System.out.println("main: disposing frame");
         frame.dispose();
+        System.out.println("main: disposed frame");
+        // lib.egui_quit(ui);
         // System.exit(0);
         System.out.println("run done");
     }

@@ -27,19 +27,24 @@ public class AWTThreadTest {
         }
     }
 
-    public static void main(String[] args) {
-        Semaphore signalTerminate = new Semaphore(0);
-        Semaphore signalTerminated = new Semaphore(0);
+    static Semaphore signalTerminate = new Semaphore(0);
+    static Semaphore signalTerminated = new Semaphore(0);
+
+    public static void doTerminate() {
+        // request the cleanup
+        signalTerminate.release();
+        try {
+            // wait until the thread is done with the cleanup
+            signalTerminated.acquire();
+        } catch (InterruptedException ignored) {
+        }
+    }
+
+    public static void main(String[] args) throws InterruptedException {
         JFrame frame = new JFrame("AWT test") {
             @Override
             public void dispose() {
-                // request the cleanup
-                signalTerminate.release();
-                try {
-                    // wait until the thread is done with the cleanup
-                    signalTerminated.acquire();
-                } catch (InterruptedException ignored) {
-                }
+                // doTerminate();
                 super.dispose();
             }
         };
@@ -84,24 +89,39 @@ public class AWTThreadTest {
         frame.setVisible(true);
         frame.transferFocus();
 
-        Runnable renderLoop = new Runnable() {
-            @Override
-            public void run() {
-                while (true) {
-                    canvas.render();
-                    try {
-                        if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
-                            GL.setCapabilities(null);
-                            canvas.doDisposeCanvas();
-                            signalTerminated.release();
-                            return;
-                        }
-                    } catch (InterruptedException ignored) {
-                    }
+        Runnable renderLoop = () -> {
+            while (true) {
+                canvas.render();
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException e) {
+                    canvas.doDisposeCanvas();
+                    break;
                 }
+                // try {
+                //     if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
+                //         GL.setCapabilities(null);
+                //         canvas.doDisposeCanvas();
+                //         signalTerminated.release();
+                //         return;
+                //     }
+                // } catch (InterruptedException ignored) {
+                // }
             }
+            System.out.println("renderLoop exit");
         };
         Thread renderThread = new Thread(renderLoop);
         renderThread.start();
+        // Thread.sleep(3000);
+        // canvas.disposeCanvas();
+        // canvas.doDisposeCanvas();
+        Thread.sleep(3000);
+        renderThread.interrupt();
+        renderThread.join();
+        // canvas.doDisposeCanvas();
+        // renderThread.interrupt();
+        // doTerminate();
+        // canvas.disposeCanvas();
+        frame.dispose();
     }
 }

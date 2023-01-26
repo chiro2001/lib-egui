@@ -19,6 +19,7 @@ pub struct Egui {
     pub state: Arc<Mutex<EguiStateHandler>>,
     pub quit: Arc<Mutex<bool>>,
     pub quit_done: Arc<Mutex<bool>>,
+    pub frame_count: u64,
 }
 
 impl Egui {
@@ -28,6 +29,7 @@ impl Egui {
             state: Arc::new(Mutex::new(Default::default())),
             quit: Arc::new(Mutex::new(false)),
             quit_done: Arc::new(Mutex::new(false)),
+            frame_count: 0,
         }
     }
 }
@@ -47,8 +49,9 @@ pub extern "C" fn egui_create(before: *const (), mesh: *const (), after: *const 
     e
 }
 
-async fn egui_running(ui: &Egui) {
+fn egui_running(ui: &Egui) {
     let ctx = egui::Context::default();
+    info!("egui_running start");
     loop {
         // debug!("egui thread running");
         let start_time = Instant::now();
@@ -86,13 +89,22 @@ async fn egui_running(ui: &Egui) {
 #[no_mangle]
 pub unsafe extern "C" fn egui_run(g: *mut Egui) {
     let ui = egui_cast(g);
-    std::thread::spawn(move || futures::executor::block_on(egui_running(ui)));
+    info!("before egui_run start");
+    // std::thread::spawn(move || futures::executor::block_on(egui_running(ui)));
+    // std::thread::spawn(move || futures::executor::block_on(async {
+    //     egui_running(ui);
+    // }));
+    std::thread::spawn(move || {
+        egui_running(ui);
+    });
+    info!("after egui_run");
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn egui_run_block(g: *mut Egui) {
     let ui = egui_cast(g);
-    futures::executor::block_on(egui_running(ui));
+    egui_running(ui);
+    info!("egui_run_block done");
 }
 
 #[no_mangle]

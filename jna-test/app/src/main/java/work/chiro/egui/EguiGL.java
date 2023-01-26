@@ -37,27 +37,7 @@ public class EguiGL {
 
     LibEgui.PainterBeforeHandler beforeHandler = () -> {
         if (!valid) return false;
-        // if (!enabled && initCalled) {
-        //     System.out.println("canvas disabled!");
-        //     try {
-        //         Thread.sleep(1000);
-        //     } catch (Throwable e) {
-        //         System.out.printf("when canvas disabled: %s\n", e.toString());
-        //     }
-        //     // System.exit(0);
-        //     return false;
-        // }
-        // if (!isValid()) {
-        //     GL.setCapabilities(null);
-        //     return false;
-        // }
-        // beforeRender();
         try {
-            // if (!initCalled) {
-            //     init();
-            //     initCalled = true;
-            // }
-
             System.out.println("before");
             glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
             glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
@@ -75,7 +55,7 @@ public class EguiGL {
             glEnable(GL_SCISSOR_TEST);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            glUseProgram(program);
+            // glUseProgram(program);
             glActiveTexture(GL_TEXTURE0);
             int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
             glUniform2f(screenSizeLoc, w, h);
@@ -90,8 +70,8 @@ public class EguiGL {
     };
     LibEgui.PainterMeshHandler meshHandler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
         System.out.println("mesh");
-        Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
-        paintMesh(mesh);
+        // Mesh mesh = new Mesh(indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+        // paintMesh(mesh);
         // int w = getWidth();
         // int h = getHeight();
         int w = 600;
@@ -108,7 +88,6 @@ public class EguiGL {
         glVertex2f(+0.75f * width / aspect, 0);
         glVertex2f(0, +0.75f);
         glEnd();
-        // swapBuffers();
     };
 
     LibEgui.VoidHandler afterHandler = () -> {
@@ -116,20 +95,20 @@ public class EguiGL {
         glDisable(GL_SCISSOR_TEST);
         glDisable(GL_FRAMEBUFFER_SRGB);
         glDisable(GL_BLEND);
-        // afterRender();
-
         try {
             if (signalTerminate.tryAcquire(10, TimeUnit.MILLISECONDS)) {
                 System.out.println("interrupted");
                 GL.setCapabilities(null);
-                signalTerminated.release();
+                // signalTerminated.release();
                 // disposeCanvas();
                 valid = false;
                 System.out.println("quiting");
                 quitListener.run();
                 System.out.println("quit listener called");
+                signalTerminated.release();
             }
-            Thread.sleep(1);
+            // Thread.sleep(1);
+            Thread.sleep(100);
         } catch (InterruptedException ignored) {
             System.out.println("InterruptedException");
         }
