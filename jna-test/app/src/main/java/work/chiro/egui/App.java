@@ -79,37 +79,8 @@ public class App {
             if (!canvas.getInitCalled()) {
                 canvas.initGL();
                 canvas.setInitCalled();
-                // return false;
             }
             return egui.beforeHandler.callback();
-            // return false;
-
-            // if (canvas != null) {
-            //     canvas.beforeRender();
-            //     if (!canvas.getInitCalled()) {
-            //         canvas.initGL();
-            //         canvas.setInitCalled();
-            //     }
-            //
-            //     int w = canvas.getWidth();
-            //     int h = canvas.getHeight();
-            //     float aspect = (float) w / h;
-            //     double now = System.currentTimeMillis() * 0.001;
-            //     float width = (float) Math.abs(Math.sin(now * 0.3));
-            //     glClear(GL_COLOR_BUFFER_BIT);
-            //     glViewport(0, 0, w, h);
-            //     glBegin(GL_QUADS);
-            //     glColor3f(0.4f, 0.6f, 0.8f);
-            //     glVertex2f(-0.75f * width / aspect, 0.0f);
-            //     glVertex2f(0, -0.75f);
-            //     glVertex2f(+0.75f * width / aspect, 0);
-            //     glVertex2f(0, +0.75f);
-            //     glEnd();
-            //     canvas.swapBuffers();
-            //
-            //     canvas.afterRender();
-            // }
-            // return false;
         }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
             egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
             // canvas.swapBuffers();
@@ -120,25 +91,11 @@ public class App {
                 canvas.afterRender();
             }
         });
-        // ui = lib.egui_create(() -> {
-        //     count.getAndIncrement();
-        //     String text = String.format("counting: %d", count.get());
-        //     label.setText(text);
-        //     System.out.println(text);
-        //     try {
-        //         Thread.sleep(100);
-        //     } catch (InterruptedException e) {
-        //         throw new RuntimeException(e);
-        //     }
-        //     return false;
-        // }, (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
-        // }, () -> {
-        // });
         frame.add(canvas, BorderLayout.CENTER);
         frame.add(label, BorderLayout.SOUTH);
         frame.pack();
         frame.setVisible(true);
-        // frame.transferFocus();
+        frame.transferFocus();
     }
 
     public void run() throws InterruptedException {
@@ -149,15 +106,7 @@ public class App {
         thread.setDaemon(true);
         thread.start();
         egui.setQuitListener(() -> {
-            // System.out.println("before egui_quit");
-            // lib.egui_quit(ui);
-            // System.out.println("after egui_quit");
-            // frame.setVisible(false);
-            // System.out.println("after unset visible");
-            // frame.dispose();
-            // System.out.println("after dispose");
             System.out.println("quit listener: dispose canvas");
-            // canvas.disposeCanvas();
             GL.setCapabilities(null);
             canvas.afterRender();
             canvas.doDisposeCanvas();
