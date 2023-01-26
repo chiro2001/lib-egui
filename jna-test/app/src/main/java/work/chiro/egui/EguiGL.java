@@ -1,37 +1,5 @@
 package work.chiro.egui;
 
-import static org.lwjgl.opengl.GL11C.GL_RENDERER;
-import static org.lwjgl.opengl.GL11C.GL_VENDOR;
-import static org.lwjgl.opengl.GL11C.GL_VERSION;
-import static org.lwjgl.opengl.GL11C.glGetString;
-import static org.lwjgl.opengl.GL45.GL_BLEND;
-import static org.lwjgl.opengl.GL45.GL_COLOR_BUFFER_BIT;
-import static org.lwjgl.opengl.GL45.GL_LINEAR;
-import static org.lwjgl.opengl.GL45.GL_ONE;
-import static org.lwjgl.opengl.GL45.GL_ONE_MINUS_SRC_ALPHA;
-import static org.lwjgl.opengl.GL45.GL_QUADS;
-import static org.lwjgl.opengl.GL45.GL_SCISSOR_TEST;
-import static org.lwjgl.opengl.GL45.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL45.GL_TEXTURE_MAG_FILTER;
-import static org.lwjgl.opengl.GL45.GL_TEXTURE_MIN_FILTER;
-import static org.lwjgl.opengl.GL45.GL_TEXTURE_WRAP_S;
-import static org.lwjgl.opengl.GL45.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL45.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL45.GL_UNPACK_ALIGNMENT;
-import static org.lwjgl.opengl.GL45.GL_UNPACK_ROW_LENGTH;
-import static org.lwjgl.opengl.GL45.GL_UNSIGNED_BYTE;
-import static org.lwjgl.opengl.GL45.GL_UNSIGNED_SHORT;
-import static org.lwjgl.opengl.GL45.glBindTexture;
-import static org.lwjgl.opengl.GL45.glBlendFunc;
-import static org.lwjgl.opengl.GL45.glClear;
-import static org.lwjgl.opengl.GL45.glClearColor;
-import static org.lwjgl.opengl.GL45.glDisable;
-import static org.lwjgl.opengl.GL45.glDrawElements;
-import static org.lwjgl.opengl.GL45.glEnable;
-import static org.lwjgl.opengl.GL45.glGenTextures;
-import static org.lwjgl.opengl.GL45.glPixelStorei;
-import static org.lwjgl.opengl.GL45.glTexParameteri;
-import static org.lwjgl.opengl.GL45.glViewport;
 import static org.lwjgl.opengl.GL45.*;
 
 public class EguiGL {

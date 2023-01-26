@@ -120,8 +120,8 @@ public class AWTThreadTest {
         // Thread.sleep(3000);
         // canvas.disposeCanvas();
         // canvas.doDisposeCanvas();
-        Thread.sleep(3000);
-        renderThread.interrupt();
+        // Thread.sleep(3000);
+        // renderThread.interrupt();
         renderThread.join();
         // canvas.doDisposeCanvas();
         // renderThread.interrupt();

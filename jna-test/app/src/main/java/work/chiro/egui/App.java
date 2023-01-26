@@ -19,6 +19,9 @@ public class App {
     EguiGL egui;
     MyGLCanvas canvas;
     boolean terminated = false;
+    LibEgui.PainterBeforeHandler before;
+    LibEgui.PainterMeshHandler handler;
+    LibEgui.VoidHandler after;
 
     public void doTerminate() throws InterruptedException {
         if (terminated) return;
@@ -62,12 +65,11 @@ public class App {
         canvas = new MyGLCanvas(data, egui::init);
         AtomicInteger count = new AtomicInteger();
         JLabel label = new JLabel("counting");
-        ui = lib.egui_create(() -> {
+        before = () -> {
             count.getAndIncrement();
             String text = String.format("frame: %d", count.get());
+            // System.out.println(text);
             label.setText(text);
-
-            // if (canvas == null) return false;
             if (!canvas.isValid()) {
                 GL.setCapabilities(null);
                 return false;
@@ -82,11 +84,14 @@ public class App {
                 canvas.afterRender();
             }
             return r;
-        }, egui.meshHandler, () -> {
+        };
+        handler = egui.meshHandler;
+        after = () -> {
             egui.afterHandler.callback();
             canvas.swapBuffers();
             canvas.afterRender();
-        });
+        };
+        ui = lib.egui_create(before, handler, after);
         frame.add(canvas, BorderLayout.CENTER);
         frame.add(label, BorderLayout.SOUTH);
         frame.pack();
