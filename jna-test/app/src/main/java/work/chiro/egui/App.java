@@ -28,6 +28,7 @@ public class App {
         lib.egui_quit(ui);
         System.out.println("main: dispose canvas");
         GL.setCapabilities(null);
+        canvas.disposeCanvas();
         System.out.println("main: dispose canvas done");
         System.out.println("all done");
         System.out.println("main: disposing frame");

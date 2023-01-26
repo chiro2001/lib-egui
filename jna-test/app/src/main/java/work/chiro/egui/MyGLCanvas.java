@@ -42,13 +42,4 @@ public class MyGLCanvas extends AWTGLCanvas {
     public void setInitCalled() {
         initCalled = true;
     }
-
-    @Override
-    public void disposeCanvas() {
-        // super.disposeCanvas();
-    }
-
-    public void doDisposeCanvas() {
-        super.disposeCanvas();
-    }
 }
