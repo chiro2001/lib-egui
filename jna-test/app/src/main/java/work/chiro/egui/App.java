@@ -7,6 +7,7 @@ import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.awt.GLData;
+import work.chiro.egui.gears.GLXGears;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +23,12 @@ public class App {
     LibEgui.PainterBeforeHandler before;
     LibEgui.PainterMeshHandler handler;
     LibEgui.VoidHandler after;
+    GLXGears gears;
+    int frameCount = 0;
+    int meshCount = 0;
+    double startTime;
+    double fpsNow = 0;
+    double mpsNow = 0;
 
     public void doTerminate() throws InterruptedException {
         if (terminated) return;
@@ -67,7 +74,7 @@ public class App {
         JLabel label = new JLabel("counting");
         before = () -> {
             count.getAndIncrement();
-            String text = String.format("frame: %d", count.get());
+            String text = String.format("fps: %.1f; mps: %.1f, frame: %d", fpsNow, mpsNow, count.get());
             // System.out.println(text);
             label.setText(text);
             if (!canvas.isValid()) {
@@ -77,17 +84,39 @@ public class App {
             canvas.beforeRender();
             if (!canvas.getInitCalled()) {
                 canvas.initGL();
+                startTime = System.currentTimeMillis();
+                gears = new GLXGears();
+                gears.setSize(canvas.getWidth(), canvas.getHeight());
                 canvas.setInitCalled();
             }
-            boolean r = egui.beforeHandler.callback();
-            if (!r) {
-                canvas.afterRender();
+            gears.render();
+            gears.animate();
+            canvas.swapBuffers();
+            double time = System.currentTimeMillis();
+            frameCount++;
+            if (time >= startTime + 1000) {
+                fpsNow = frameCount * 1000 / (time - startTime);
+                mpsNow = meshCount * 1000 / (time - startTime);
+                startTime = time;
+                frameCount = 0;
+                meshCount = 0;
             }
-            return r;
+            canvas.afterRender();
+            return false;
+            // boolean r = egui.beforeHandler.callback();
+            // if (!r) {
+            //     canvas.afterRender();
+            // }
+            // return r;
         };
-        handler = egui.meshHandler;
+        handler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
+            egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
+            meshCount++;
+        };
         after = () -> {
             egui.afterHandler.callback();
+            // gears.render();
+            // gears.animate();
             canvas.swapBuffers();
             canvas.afterRender();
         };

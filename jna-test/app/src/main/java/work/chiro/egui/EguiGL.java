@@ -34,7 +34,7 @@ public class EguiGL {
             glEnable(GL_SCISSOR_TEST);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            glUseProgram(program);
+            // glUseProgram(program);
             glActiveTexture(GL_TEXTURE0);
             int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
             glUniform2f(screenSizeLoc, w, h);

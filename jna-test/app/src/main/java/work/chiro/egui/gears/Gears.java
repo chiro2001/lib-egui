@@ -2,7 +2,7 @@
  * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
-package work.chiro.egui;
+package work.chiro.egui.gears;
 
 import org.lwjgl.glfw.GLFWAllocator;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -11,7 +11,6 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GLUtil;
 import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryStack;
-import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.system.Platform;
 
 import java.nio.IntBuffer;
@@ -21,7 +20,7 @@ import static org.lwjgl.glfw.Callbacks.glfwFreeCallbacks;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.*;
-import static work.chiro.egui.GLFWUtil.glfwInvoke;
+import static work.chiro.egui.gears.GLFWUtil.glfwInvoke;
 
 /**
  * The Gears demo implemented using GLFW.

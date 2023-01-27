@@ -2,7 +2,7 @@
  * Copyright LWJGL. All rights reserved.
  * License terms: https://www.lwjgl.org/license
  */
-package work.chiro.egui;
+package work.chiro.egui.gears;
 
 import org.joml.*;
 import org.lwjgl.BufferUtils;
@@ -26,7 +26,7 @@ import static org.lwjgl.opengl.GL30C.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.memAllocFloat;
 import static org.lwjgl.system.MemoryUtil.memFree;
-import static work.chiro.egui.IOUtil.ioResourceToByteBuffer;
+import static work.chiro.egui.gears.IOUtil.ioResourceToByteBuffer;
 
 /**
  * Modern OpenGL port of <a href="https://www.opengl.org/archives/resources/code/samples/glut_examples/mesademos/gears.c">gears.c</a>.
