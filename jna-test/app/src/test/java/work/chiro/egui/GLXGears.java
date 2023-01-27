@@ -515,6 +515,8 @@ public class GLXGears {
             @Override
             public void paintGL() {
                 g.render();
+                g.animate();
+                swapBuffers();
             }
         }, BorderLayout.CENTER);
         frame.pack();
