@@ -1,5 +1,6 @@
 package work.chiro.egui;
 
+import static org.lwjgl.opengl.GL11C.GL_FLOAT;
 import static org.lwjgl.opengl.GL45.*;
 
 public class EguiGL {
@@ -119,7 +120,7 @@ public class EguiGL {
         int posLoc = glGetAttribLocation(program, "a_pos");
         assert posLoc > 0;
         int stride = 0;
-        glVertexAttribPointer(posLoc, 2, GL_FLAT, false, stride, 0);
+        glVertexAttribPointer(posLoc, 2, GL_FLOAT, false, stride, 0);
         glEnableVertexAttribArray(posLoc);
 
         glBindBuffer(GL_ARRAY_BUFFER, tcBuffer);
@@ -127,7 +128,7 @@ public class EguiGL {
 
         int tcLoc = glGetAttribLocation(program, "a_tc");
         assert tcLoc > 0;
-        glVertexAttribPointer(tcLoc, 2, GL_FLAT, false, stride, 0);
+        glVertexAttribPointer(tcLoc, 2, GL_FLOAT, false, stride, 0);
         glEnableVertexAttribArray(tcLoc);
 
         glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
@@ -140,6 +141,7 @@ public class EguiGL {
 
         // glDrawElements(GL_TRIANGLES, mesh.indices);
         glDrawElements(GL_TRIANGLES, mesh.indicesLen >> 1, GL_UNSIGNED_SHORT, 0);
+        // glDrawArrays(GL_TRIANGLES, 0, mesh.indicesLen >> 1);
         glDisableVertexAttribArray(posLoc);
         glDisableVertexAttribArray(tcLoc);
         glDisableVertexAttribArray(srgbaLoc);
