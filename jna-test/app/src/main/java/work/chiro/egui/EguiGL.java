@@ -35,12 +35,12 @@ public class EguiGL {
             glEnable(GL_SCISSOR_TEST);
             glEnable(GL_BLEND);
             glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-            glUseProgram(program);
             glActiveTexture(GL_TEXTURE0);
-            int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
-            glUniform2f(screenSizeLoc, screenWidth, screenHeight);
-            int samplerLoc = glGetUniformLocation(program, "u_sampler");
-            glUniform1i(samplerLoc, 0);
+            // glUseProgram(program);
+            // int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
+            // glUniform2f(screenSizeLoc, screenWidth, screenHeight);
+            // int samplerLoc = glGetUniformLocation(program, "u_sampler");
+            // glUniform1i(samplerLoc, 0);
             glViewport(0, 0, screenWidth, screenHeight);
         } catch (Throwable e) {
             System.out.printf("paint error: %s\n", e);
@@ -128,6 +128,8 @@ public class EguiGL {
         // glBindTexture(GL_TEXTURE_2D, eguiTexture);
 
         glBindVertexArray(vertexArray);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, 0);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.indices, GL_STREAM_DRAW);
 

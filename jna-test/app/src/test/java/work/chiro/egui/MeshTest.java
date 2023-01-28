@@ -6,15 +6,10 @@ import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.Serial;
+import java.nio.ShortBuffer;
 
 import static org.lwjgl.opengl.GL.createCapabilities;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL20.glDeleteShader;
-import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL45.*;
 
 public class MeshTest {
     // static short[] indices = {2, 0, 4, 4, 0, 6, 0, 6, 7, 7, 1, 0, 2, 0, 1, 1, 3, 2, 4, 2, 3, 3, 5, 4, 6, 4, 5, 5, 7, 6, 8, 9, 10, 10, 9, 11, 12, 13, 14, 14, 13, 15, 16, 17, 18, 18, 17, 19, 20, 21, 22, 22, 21, 23, 24, 25, 26, 26, 25, 27, 28, 29, 30, 30, 29, 31, 32, 33, 34, 34, 33, 35, 36, 37, 38, 38, 37, 39};
@@ -79,85 +74,68 @@ public class MeshTest {
 
             @Override
             public void paintGL() {
-                // int w = getWidth();
-                // int h = getHeight();
-                // float aspect = (float) w / h;
-                // double now = System.currentTimeMillis() * 0.001;
-                // float width = (float) Math.abs(Math.sin(now * 0.3));
-                // glClear(GL_COLOR_BUFFER_BIT);
-                // glViewport(0, 0, w, h);
-                // glBegin(GL_QUADS);
-                // glColor3f(0.4f, 0.6f, 0.8f);
-                // glVertex2f(-0.75f * width / aspect, 0.0f);
-                // glVertex2f(0, -0.75f);
-                // glVertex2f(+0.75f * width / aspect, 0);
-                // glVertex2f(0, +0.75f);
-                // glEnd();
-
                 glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
                 glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
-                // glClearColor(0x10, 0x10, 0x10, 0x10);
-                glClearColor(0, 0, 0, 0);
-                glClear(GL_COLOR_BUFFER_BIT);
+                int screenWidth = 600;
+                int screenHeight = 600;
 
-                int w = getWidth();
-                int h = getHeight();
-
-                glEnable(GL_FRAMEBUFFER_SRGB);
-                glEnable(GL_SCISSOR_TEST);
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-                glUseProgram(program);
+                // glEnable(GL_FRAMEBUFFER_SRGB);
+                // glEnable(GL_SCISSOR_TEST);
+                // glEnable(GL_BLEND);
+                // glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+                // glUseProgram(program);
                 glActiveTexture(GL_TEXTURE0);
-                int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
-                glUniform2f(screenSizeLoc, w, h);
-                int samplerLoc = glGetUniformLocation(program, "u_sampler");
-                glUniform1i(samplerLoc, 0);
-                glViewport(0, 0, w, h);
+                // int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
+                // glUniform2f(screenSizeLoc, screenWidth, screenHeight);
+                // int samplerLoc = glGetUniformLocation(program, "u_sampler");
+                // glUniform1i(samplerLoc, 0);
+                // glViewport(0, 0, screenWidth, screenHeight);
 
-                glBindTexture(GL_TEXTURE_2D, eguiTexture);
+                glColor3b((byte) 0xff, (byte) 0xff, (byte) 0xff);
 
                 glBindVertexArray(vertexArray);
+                glEnableClientState(GL_VERTEX_ARRAY);
+                // glVertexPointer(2, GL_FLOAT, 0, 0);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
                 glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STREAM_DRAW);
 
                 glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
                 glBufferData(GL_ARRAY_BUFFER, points, GL_STREAM_DRAW);
 
-                int posLoc = glGetAttribLocation(program, "a_pos");
-                assert posLoc > 0;
-                int stride = 0;
-                glVertexAttribPointer(posLoc, 2, GL_FLAT, false, stride, 0);
-                glEnableVertexAttribArray(posLoc);
-
-                glBindBuffer(GL_ARRAY_BUFFER, tcBuffer);
-                glBufferData(GL_ARRAY_BUFFER, uvs, GL_STREAM_DRAW);
-
-                int tcLoc = glGetAttribLocation(program, "a_tc");
-                assert tcLoc > 0;
-                glVertexAttribPointer(tcLoc, 2, GL_FLAT, false, stride, 0);
-                glEnableVertexAttribArray(tcLoc);
-
-                glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-                glBufferData(GL_ARRAY_BUFFER, colors, GL_STREAM_DRAW);
-
-                int srgbaLoc = glGetAttribLocation(program, "a_srgba");
-                assert srgbaLoc > 0;
-                glVertexAttribPointer(srgbaLoc, 4, GL_UNSIGNED_BYTE, false, stride, 0);
-                glEnableVertexAttribArray(srgbaLoc);
-
-                // glDrawElements(GL_TRIANGLES, mesh.indices);
+                // int posLoc = glGetAttribLocation(program, "a_pos");
+                // assert posLoc >= 0;
+                // int stride = 0;
+                // glVertexAttribPointer(posLoc, 2, GL_FLOAT, false, stride, 0);
+                // glEnableVertexAttribArray(posLoc);
+                //
+                // glBindBuffer(GL_ARRAY_BUFFER, tcBuffer);
+                // glBufferData(GL_ARRAY_BUFFER, uvs, GL_STREAM_DRAW);
+                //
+                // int tcLoc = glGetAttribLocation(program, "a_tc");
+                // assert tcLoc >= 0;
+                // glVertexAttribPointer(tcLoc, 2, GL_FLOAT, false, stride, 0);
+                // glEnableVertexAttribArray(tcLoc);
+                //
+                // glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+                // glBufferData(GL_ARRAY_BUFFER, colors, GL_STREAM_DRAW);
+                //
+                // int srgbaLoc = glGetAttribLocation(program, "a_srgba");
+                // assert srgbaLoc > 0;
+                // glVertexAttribPointer(srgbaLoc, 4, GL_UNSIGNED_BYTE, false, stride, 0);
+                // glEnableVertexAttribArray(srgbaLoc);
+                //
+                // // glDrawElements(GL_TRIANGLES, ShortBuffer.wrap(indices));
                 glDrawElements(GL_TRIANGLES, indices.length >> 1, GL_UNSIGNED_SHORT, 0);
-                glDisableVertexAttribArray(posLoc);
-                glDisableVertexAttribArray(tcLoc);
-                glDisableVertexAttribArray(srgbaLoc);
+                // glDisableVertexAttribArray(posLoc);
+                // glDisableVertexAttribArray(tcLoc);
+                // glDisableVertexAttribArray(srgbaLoc);
+                //
+                // glDisable(GL_SCISSOR_TEST);
+                // glDisable(GL_FRAMEBUFFER_SRGB);
+                // glDisable(GL_BLEND);
 
                 swapBuffers();
-
-                glDisable(GL_SCISSOR_TEST);
-                glDisable(GL_FRAMEBUFFER_SRGB);
-                glDisable(GL_BLEND);
             }
         }, BorderLayout.CENTER);
         frame.pack();
