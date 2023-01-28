@@ -91,7 +91,7 @@ public class App {
             }
             gears.render();
             gears.animate();
-            canvas.swapBuffers();
+            // canvas.swapBuffers();
             double time = System.currentTimeMillis();
             frameCount++;
             if (time >= startTime + 1000) {
@@ -101,13 +101,11 @@ public class App {
                 frameCount = 0;
                 meshCount = 0;
             }
-            canvas.afterRender();
-            return false;
-            // boolean r = egui.beforeHandler.callback();
-            // if (!r) {
-            //     canvas.afterRender();
-            // }
-            // return r;
+            // canvas.afterRender();
+            // return false;
+            boolean r = egui.beforeHandler.callback();
+            if (!r) canvas.afterRender();
+            return r;
         };
         handler = (minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId) -> {
             egui.meshHandler.callback(minX, minY, maxX, maxY, indices, indicesLen, vertices, verticesLen, textureManaged, textureId);
