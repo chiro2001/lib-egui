@@ -15,14 +15,16 @@ GLuint program;
 GLuint a_pos;
 GLuint a_srgba;
 GLuint a_tc;
+int screen_width = 640;
+int screen_height = 480;
 
 void void_call_handler() {
   Log("void_call_handler() called, test pass.");
 }
 
 bool before_handler() {
-  // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
-  glClearColor(0.2f, 0.3f, 0.4f, 1.0f); // Set background color to black and opaque
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
+  // glClearColor(0.2f, 0.3f, 0.4f, 1.0f); // Set background color to black and opaque
   glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
   return true;
 
@@ -79,9 +81,9 @@ void display() {}
 int main(int argc, char **argv) {
   glutInit(&argc, argv);                 // Initialize GLUT
   glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA);
+  glutInitWindowSize(screen_width, screen_height);   // Set the window's initial width & height
+  // glutInitWindowPosition(50, 50); // Position the window's initial top-left corner
   glutCreateWindow("OpenGL Mesh Test"); // Create a window with the given title
-  glutInitWindowSize(600, 600);   // Set the window's initial width & height
-  glutInitWindowPosition(50, 50); // Position the window's initial top-left corner
 
   // disable stdio buffer
   setvbuf(stdout, nullptr, _IONBF, 0);
@@ -97,13 +99,13 @@ int main(int argc, char **argv) {
   a_pos = glGetAttribLocation(program, "a_pos");
   a_tc = glGetAttribLocation(program, "a_tc");
   a_srgba = glGetAttribLocation(program, "a_srgba");
-  
+
   // init screen size
   GLint screen_size = glGetUniformLocation(program, "u_screen_size");
-  glUniform2f(screen_size, 600, 600);
+  glUniform2f(screen_size, (float) (screen_width), (float) (screen_height));
   GLint sampler = glGetUniformLocation(program, "u_sampler");
   glUniform1i(sampler, 0);
-  glViewport(0, 0, 600, 600);
+  glViewport(0, 0, screen_width, screen_height);
 
   call_void(void_call_handler);
   egui = egui_create(before_handler, mesh_handler, after_handler);
