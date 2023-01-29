@@ -5,6 +5,7 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
+use egui::{ClippedPrimitive, TexturesDelta};
 use tracing::{debug, info, trace};
 
 mod basic;
@@ -30,6 +31,14 @@ impl Egui {
             quit: Arc::new(Mutex::new(false)),
             quit_done: Arc::new(Mutex::new(false)),
             frame_count: 0,
+        }
+    }
+    pub fn paint(&self, texture_delta: &TexturesDelta, primitives: Vec<ClippedPrimitive>) {
+        {
+            let painter = self.painter.lock().unwrap();
+            for primitive in primitives.into_iter() {
+                painter.paint_primitive(primitive);
+            }
         }
     }
 }
@@ -60,25 +69,24 @@ fn egui_running(ui: &mut Egui) {
         state.input.time = Some(start_time.elapsed().as_secs_f64());
         ctx.begin_frame(state.input.take());
 
-        egui::CentralPanel::default().show(&ctx, |ui| {
-            ui.centered_and_justified(|ui| {
-                if ui.button("button").clicked() {
-                    ui.label("clicked!");
-                } else {
-                    ui.label("lib-egui");
-                }
+        let full_output = ctx.run(state.input.clone(), |ctx| {
+            egui::CentralPanel::default().show(&ctx, |ui| {
+                ui.centered_and_justified(|ui| {
+                    if ui.button("button").clicked() {
+                        ui.label("clicked!");
+                    } else {
+                        ui.label("lib-egui");
+                    }
+                });
             });
         });
 
         let output = ctx.end_frame();
         let shapes = output.shapes;
         let primitives = ctx.tessellate(shapes);
-        {
-            let painter = ui.painter.lock().unwrap();
-            for primitive in primitives.into_iter() {
-                painter.paint_primitive(primitive);
-            }
-        }
+        ui.paint(&full_output.textures_delta, primitives);
+
+        // TODO: full_output.platform_output
 
         // sleep(Duration::from_millis(100));
         sleep(Duration::from_millis(1));
