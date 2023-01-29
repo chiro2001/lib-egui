@@ -5,10 +5,19 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
-include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS})
+find_package(GLEW REQUIRED)
+find_package(fmt REQUIRED)
+include_directories(${OPENGL_INCLUDE_DIRS} ${GLUT_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS})
 
-add_executable(cpp_opengl_test main.cpp)
-add_executable(mesh_test mesh.cpp)
+set(PROJECT_SOURCES
+        ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp
+        )
 
-target_link_libraries(cpp_opengl_test OpenGL::OpenGL GLUT::GLUT)
-target_link_libraries(mesh_test OpenGL::OpenGL GLUT::GLUT)
+add_executable(cpp_opengl_test main.cpp ${PROJECT_SOURCES})
+add_executable(mesh_test mesh.cpp ${PROJECT_SOURCES})
+
+set(PROJECT_LIBS OpenGL::OpenGL GLUT::GLUT GLEW::GLEW fmt::fmt)
+
+target_link_libraries(cpp_opengl_test ${PROJECT_LIBS})
+target_link_libraries(mesh_test ${PROJECT_LIBS})
