@@ -30,7 +30,10 @@ GLuint Shader::compile(const std::string &path, int typ) {
   std::ostringstream stream;
   stream << file.rdbuf();
   std::string content = stream.str();
-  glShaderSource(shader, 1, reinterpret_cast<const GLchar *const *>(content.c_str()), nullptr);
+  file.close();
+  int source_len = (int) content.length();
+  const char *content_str = content.c_str();
+  glShaderSource(shader, 1, &content_str, &source_len);
   glCompileShader(shader);
   int status;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
