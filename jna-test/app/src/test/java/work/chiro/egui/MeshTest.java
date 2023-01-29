@@ -6,6 +6,7 @@ import org.lwjgl.opengl.awt.GLData;
 
 import javax.swing.*;
 import java.awt.*;
+import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 import static org.lwjgl.opengl.GL.createCapabilities;
@@ -18,9 +19,27 @@ public class MeshTest {
     // static long[] colors = {454761471L, 0L, 454761471L, 0L, 454761471L, 0L, 454761471L, 0L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L, 2358021375L};
 
     static short[] indices = {0, 1, 2, 2, 1, 3};
+    static short[] indices2 = {0, 1, 2, 0, 2, 3};
     static float[] points = {0.0f, 0.0f, 200.0f, 0.0f, 100.0f, 200.0f, 300.0f, 200.0f};
     static float[] uvs = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     static long[] colors = {454761471L, 0L, 454761471L, 0L, 454761471L};
+    static float[] vertices = {
+            // 位置              // 颜色
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,   // 右下
+            -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,   // 左下
+            0.0f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f    // 顶部
+    };
+
+    static float[] vertices2 = {
+            -0.5f * 100, 0.5f * 100, 0.0f * 100,       // v0
+            1.0f * 100, 0.0f * 100, 0.0f * 100,        // c0
+            -0.5f * 100, -0.5f * 100, 0.0f * 100,      // v1
+            0.0f * 100, 1.0f * 100, 0.0f * 100,        // c1
+            0.5f * 100, -0.5f * 100, 0.0f * 100,       // v2
+            0.0f * 100, 0.0f * 100, 1.0f * 100,        // c2
+            0.5f * 100, 0.5f * 100, 0.0f * 100,        // v3
+            0.5f * 100, 1.0f * 100, 1.0f * 100,        // c3
+    };
 
     public static void main(String[] args) throws InterruptedException {
         JFrame frame = new JFrame("AWT test");
@@ -74,8 +93,8 @@ public class MeshTest {
 
             @Override
             public void paintGL() {
-                glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-                glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+                // glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+                // glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
 
                 int screenWidth = 600;
                 int screenHeight = 600;
@@ -85,23 +104,43 @@ public class MeshTest {
                 // glEnable(GL_BLEND);
                 // glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
                 // glUseProgram(program);
-                glActiveTexture(GL_TEXTURE0);
+                // glActiveTexture(GL_TEXTURE0);
                 // int screenSizeLoc = glGetUniformLocation(program, "u_screen_size");
                 // glUniform2f(screenSizeLoc, screenWidth, screenHeight);
                 // int samplerLoc = glGetUniformLocation(program, "u_sampler");
                 // glUniform1i(samplerLoc, 0);
                 // glViewport(0, 0, screenWidth, screenHeight);
 
-                glColor3b((byte) 0xff, (byte) 0xff, (byte) 0xff);
+                // glColor3b((byte) 0xff, (byte) 0xff, (byte) 0xff);
 
-                glBindVertexArray(vertexArray);
-                glEnableClientState(GL_VERTEX_ARRAY);
+                // glBindVertexArray(vertexArray);
+                // glEnableClientState(GL_VERTEX_ARRAY);
                 // glVertexPointer(2, GL_FLOAT, 0, 0);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-                glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STREAM_DRAW);
+                // glVertexPointer(2, GL_FLOAT, 0, 0);
 
-                glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
-                glBufferData(GL_ARRAY_BUFFER, points, GL_STREAM_DRAW);
+                // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+                // glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices, GL_STREAM_DRAW);
+
+
+                // glEnableVertexAttribArray(0);
+                // glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * Float.BYTES, 0);
+                // glEnableVertexAttribArray(1);
+                // glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * Float.BYTES, 3 * Float.BYTES);
+
+                glEnableVertexAttribArray(0);
+                glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * Float.BYTES, FloatBuffer.wrap(vertices2));
+                glEnableVertexAttribArray(1);
+                glVertexAttribPointer(1, 3, GL_FLOAT, false, 6 * Float.BYTES, FloatBuffer.wrap(vertices2, 3, vertices2.length - 3));
+                glDrawElements(GL_TRIANGLES, ShortBuffer.wrap(indices2));
+
+                // glBindBuffer(GL_ARRAY_BUFFER, posBuffer);
+                // // glBufferData(GL_ARRAY_BUFFER, points, GL_STREAM_DRAW);
+                // glBufferData(GL_ARRAY_BUFFER, vertices, GL_STREAM_DRAW);
+
+                // glVertexAttribPointer(0, 2, GL_FLOAT, false, );
+
+                // glBindBuffer(GL_ARRAY_BUFFER, 0);
+                // glBindVertexArray(0);
 
                 // int posLoc = glGetAttribLocation(program, "a_pos");
                 // assert posLoc >= 0;
@@ -125,8 +164,12 @@ public class MeshTest {
                 // glVertexAttribPointer(srgbaLoc, 4, GL_UNSIGNED_BYTE, false, stride, 0);
                 // glEnableVertexAttribArray(srgbaLoc);
                 //
-                // // glDrawElements(GL_TRIANGLES, ShortBuffer.wrap(indices));
-                glDrawElements(GL_TRIANGLES, indices.length >> 1, GL_UNSIGNED_SHORT, 0);
+                // glDrawElements(GL_TRIANGLES, ShortBuffer.wrap(indices));
+                // glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_BYTE, 0);
+                // glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_SHORT, 0);
+                // glDrawElements(GL_TRIANGLES, ShortBuffer.wrap(indices));
+                // glDisableClientState(GL_VERTEX_ARRAY);
+                // glDrawElements(GL_TRIANGLES, indices.length >> 1, GL_UNSIGNED_SHORT, 0);
                 // glDisableVertexAttribArray(posLoc);
                 // glDisableVertexAttribArray(tcLoc);
                 // glDisableVertexAttribArray(srgbaLoc);
