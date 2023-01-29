@@ -16,8 +16,12 @@ set(PROJECT_SOURCES
 
 add_executable(cpp_opengl_test main.cpp ${PROJECT_SOURCES})
 add_executable(mesh_test mesh.cpp ${PROJECT_SOURCES})
+add_executable(egui_test egui_test.cpp ${PROJECT_SOURCES})
 
-set(PROJECT_LIBS OpenGL::OpenGL GLUT::GLUT GLEW::GLEW fmt::fmt)
+set(EGUI_LIB_PATH ${CMAKE_CURRENT_SOURCE_DIR}/../target/debug/libegui.a)
+
+set(PROJECT_LIBS OpenGL::OpenGL GLUT::GLUT GLEW::GLEW fmt::fmt ${EGUI_LIB_PATH})
 
 target_link_libraries(cpp_opengl_test ${PROJECT_LIBS})
 target_link_libraries(mesh_test ${PROJECT_LIBS})
+target_link_libraries(egui_test ${PROJECT_LIBS})
