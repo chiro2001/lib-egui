@@ -8,5 +8,6 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <GLES3/gl3.h>
+#include <GL/freeglut.h>
 
 #endif //CPP_OPENGL_TEST_GLS_H

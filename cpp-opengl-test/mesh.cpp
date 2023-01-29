@@ -26,6 +26,7 @@ void display() {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
   glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
 
+  // no vbo
   // glEnableVertexAttribArray(0);
   // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), vertices);
   // glEnableVertexAttribArray(1);
