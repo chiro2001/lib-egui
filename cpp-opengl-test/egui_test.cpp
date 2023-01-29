@@ -86,7 +86,7 @@ int main(int argc, char **argv) {
   setvbuf(stdout, nullptr, _IONBF, 0);
   printf("opengl version: %s", glGetString(GL_VERSION));
 
-  auto shader = Shader("egui");
+  auto shader = Shader("egui_150");
   // auto shader = Shader("mesh_test");
   program = shader.program;
   glUseProgram(program);
@@ -95,6 +95,13 @@ int main(int argc, char **argv) {
   a_pos = glGetAttribLocation(program, "a_pos");
   a_tc = glGetAttribLocation(program, "a_tc");
   a_srgba = glGetAttribLocation(program, "a_srgba");
+  
+  // init screen size
+  GLint screen_size = glGetUniformLocation(program, "u_screen_size");
+  glUniform2f(screen_size, 600, 600);
+  GLint sampler = glGetUniformLocation(program, "u_sampler");
+  glUniform1i(sampler, 0);
+  glViewport(0, 0, 600, 600);
 
   call_void(void_call_handler);
   egui = egui_create(before_handler, mesh_handler, after_handler);
