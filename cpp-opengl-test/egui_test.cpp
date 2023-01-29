@@ -3,6 +3,8 @@
 //
 
 #include <cstdio>
+#include <chrono>
+#include <fmt/format.h>
 #include "egui.h"
 #include "gls.h"
 #include "debug_macros.h"
@@ -59,6 +61,16 @@ void mesh_handler(float min_x, float min_y, float max_x, float max_y, const uint
 void after_handler() {
   glFlush();
   glutMainLoopEvent();
+  auto static start = std::chrono::system_clock::now();
+  auto now = std::chrono::system_clock::now();
+  static uint32_t frame_count = 0;
+  frame_count++;
+  auto duration_ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - start).count();
+  if (duration_ms > 1000) {
+    start = now;
+    glutSetWindowTitle(fmt::format("FPS: {}", frame_count).c_str());
+    frame_count = 0;
+  }
 }
 
 void display() {}
@@ -74,8 +86,8 @@ int main(int argc, char **argv) {
   setvbuf(stdout, nullptr, _IONBF, 0);
   printf("opengl version: %s", glGetString(GL_VERSION));
 
-  // auto shader = Shader("egui");
-  auto shader = Shader("mesh_test");
+  auto shader = Shader("egui");
+  // auto shader = Shader("mesh_test");
   program = shader.program;
   glUseProgram(program);
 
