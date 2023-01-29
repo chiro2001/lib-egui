@@ -21,7 +21,8 @@ void void_call_handler() {
 }
 
 bool before_handler() {
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
+  // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
+  glClearColor(0.2f, 0.3f, 0.4f, 1.0f); // Set background color to black and opaque
   glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
   return true;
 
@@ -87,9 +88,10 @@ int main(int argc, char **argv) {
   printf("opengl version: %s", glGetString(GL_VERSION));
 
   auto shader = Shader("egui_150");
+  // auto shader = Shader("egui");
   // auto shader = Shader("mesh_test");
   program = shader.program;
-  glUseProgram(program);
+  // glUseProgram(program);
 
   // init args locations
   a_pos = glGetAttribLocation(program, "a_pos");
