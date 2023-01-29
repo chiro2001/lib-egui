@@ -21,6 +21,8 @@ Shader::Shader(const char *name) {
   GLuint vert = Shader::compile(path_vert, GL_VERTEX_SHADER);
   GLuint frag = Shader::compile(path_frag, GL_FRAGMENT_SHADER);
   this->program = Shader::link(vert, frag);
+  glDeleteShader(vert);
+  glDeleteShader(frag);
 }
 
 GLuint Shader::compile(const std::string &path, int typ) {
