@@ -8,6 +8,7 @@
 
 GLuint program;
 GLuint vbo[2];
+GLuint vao;
 
 const GLfloat vertices[] = {
     -0.5f, 0.5f, 0.0f,       // v0
@@ -32,13 +33,15 @@ void display() {
   // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, indices);
 
   // draw as vbo
-  glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), nullptr);
-  glEnableVertexAttribArray(1);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
-                        reinterpret_cast<const void *>(3 * sizeof(GLfloat)));
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
+  // glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+  // glEnableVertexAttribArray(0);
+  // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), nullptr);
+  // glEnableVertexAttribArray(1);
+  // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+  //                       reinterpret_cast<const void *>(3 * sizeof(GLfloat)));
+  // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
+  // draw as vbo
+  glBindVertexArray(vao);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 
   glFlush();  // Render now
@@ -64,6 +67,17 @@ int main(int argc, char *argv[]) {
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+  // record vao
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), nullptr);
+  glEnableVertexAttribArray(1);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
+                        reinterpret_cast<const void *>(3 * sizeof(GLfloat)));
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
 
   glutDisplayFunc(display); // Register display callback handler for window re-paint
   glutMainLoop();           // Enter the infinitely event-processing loop
