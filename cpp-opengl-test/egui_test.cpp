@@ -87,7 +87,8 @@ int main(int argc, char **argv) {
 
   // disable stdio buffer
   setvbuf(stdout, nullptr, _IONBF, 0);
-  printf("opengl version: %s", glGetString(GL_VERSION));
+  Log("opengl version: %s", glGetString(GL_VERSION));
+  Log("sizeof(Vertex) = %lu", sizeof(Vertex));
 
   auto shader = Shader("egui_150");
   // auto shader = Shader("egui");

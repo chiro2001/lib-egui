@@ -61,7 +61,13 @@ fn egui_running(ui: &mut Egui) {
         ctx.begin_frame(state.input.take());
 
         egui::CentralPanel::default().show(&ctx, |ui| {
-            ui.centered_and_justified(|ui| ui.label("lib-egui"));
+            ui.centered_and_justified(|ui| {
+                if ui.button("button").clicked() {
+                    ui.label("clicked!");
+                } else {
+                    ui.label("lib-egui");
+                }
+            });
         });
 
         let output = ctx.end_frame();
