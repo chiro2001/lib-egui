@@ -12,9 +12,9 @@
 
 Egui egui;
 GLuint program;
-GLuint a_pos;
-GLuint a_srgba;
-GLuint a_tc;
+GLint a_pos;
+GLint a_srgba;
+GLint a_tc;
 int screen_width = 640;
 int screen_height = 480;
 
@@ -99,11 +99,16 @@ int main(int argc, char **argv) {
   a_pos = glGetAttribLocation(program, "a_pos");
   a_tc = glGetAttribLocation(program, "a_tc");
   a_srgba = glGetAttribLocation(program, "a_srgba");
+  Assert(a_pos >= 0, "Cannot locate a_pos");
+  Assert(a_tc >= 0, "Cannot locate a_tc");
+  Assert(a_srgba >= 0, "Cannot locate a_srgba");
 
   // init screen size
   GLint screen_size = glGetUniformLocation(program, "u_screen_size");
+  Assert(screen_size >= 0, "Cannot locate screen_size");
   glUniform2f(screen_size, (float) (screen_width), (float) (screen_height));
   GLint sampler = glGetUniformLocation(program, "u_sampler");
+  Assert(sampler >= 0, "Cannot locate sampler");
   glUniform1i(sampler, 0);
   glViewport(0, 0, screen_width, screen_height);
 
