@@ -4,9 +4,11 @@
 
 #include <cstdio>
 #include "egui.h"
+#include "gls.h"
+#include "debug_macros.h"
 
 void void_call_handler() {
-  printf("void_call_handler() called");
+  Log("void_call_handler() called, test pass.");
 }
 
 int main(int argc, char **argv) {
