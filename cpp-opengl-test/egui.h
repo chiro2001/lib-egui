@@ -18,27 +18,27 @@ extern "C" {
 
 using std::size_t;
 
-class Pos2 {
+class __attribute__((__packed__)) Pos2 {
 public:
   float x;
   float y;
 };
 
-class Vertex {
+class __attribute__((__packed__)) Vertex {
 public:
   Pos2 pos;
   Pos2 uv;
   uint32_t color;
 };
 
-class EguiTextureId {
+class __attribute__((__packed__)) EguiTextureId {
 public:
   uint8_t typ;
   uint64_t value;
 
   bool operator<(const EguiTextureId &i) const;
 };
-class EguiImageData {
+class __attribute__((__packed__)) EguiImageData {
 public:
   size_t size[2];
   uint8_t *pixels;
@@ -48,7 +48,7 @@ enum EguiTextureFilter {
   Nearest = 0,
   Linear = 1,
 };
-class EguiTextureOptions {
+class __attribute__((__packed__)) EguiTextureOptions {
 public:
   EguiTextureFilter magnification;
   EguiTextureFilter minification;
@@ -59,7 +59,7 @@ public:
   }
 };
 static_assert(sizeof(EguiTextureFilter) == 4);
-class EguiImageDelta {
+class __attribute__((__packed__)) EguiImageDelta {
 public:
   EguiImageData image;
   EguiTextureOptions option;

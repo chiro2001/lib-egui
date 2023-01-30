@@ -121,7 +121,7 @@ fn egui_running(ui: &mut Egui) {
 
         // TODO: full_output.platform_output
 
-        sleep(Duration::from_millis(100));
+        // sleep(Duration::from_millis(100));
         // sleep(Duration::from_millis(1));
         let quit = ui.quit.lock().unwrap();
         if *quit {

@@ -23,29 +23,26 @@ void void_call_handler() {
   Log("void_call_handler() called, test pass.");
 }
 
-void upload_texture_srgb(
-    const size_t *pos,
-    const size_t *rect,
-    const EguiTextureOptions *options,
-    const uint8_t *data,
-    const size_t length) {
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, EguiTextureOptions::code(options->magnification));
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, EguiTextureOptions::code(options->minification));
+void upload_texture_srgb(const EguiImageDelta *delta) {
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, EguiTextureOptions::code(delta->option.magnification));
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, EguiTextureOptions::code(delta->option.minification));
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   int level = 0;
-  int w = (int) rect[0];
-  int h = (int) rect[1];
+  int w = (int) delta->image.size[0];
+  int h = (int) delta->image.size[1];
+  Assert(delta->image.len == w * h * 4, "error data length");
   GLint internal_format = GL_RGBA8;
   GLint src_format = GL_RGBA;
-  if (pos != nullptr) {
-    int x = (int) pos[0];
-    int y = (int) pos[1];
-    glTexSubImage2D(GL_TEXTURE_2D, level, x, y, w, h, src_format, GL_UNSIGNED_BYTE, data);
+  if (delta->pos_valid) {
+    int x = (int) delta->pos[0];
+    int y = (int) delta->pos[0];
+    glTexSubImage2D(GL_TEXTURE_2D, level, x, y, w, h, src_format, GL_UNSIGNED_BYTE, delta->image.pixels);
   } else {
     int border = 0;
-    glTexImage2D(GL_TEXTURE_2D, level, internal_format, w, h, border, src_format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_2D, level, internal_format, w, h, border, src_format, GL_UNSIGNED_BYTE,
+                 delta->image.pixels);
   }
 }
 
@@ -106,17 +103,19 @@ void after_handler() {
 std::map<EguiTextureId, GLuint> textures = {};
 
 void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
-  Log("set_texture(id@%p={%d, %lu}, delta@%p={pos=[%zu, %zx]})", id, id->typ, id->value, delta, delta->pos[0], delta->pos[1]);
+  Log("set_texture(id@%p={%d, %lu}, delta@%p={pos=[%zu, %zx]})", id, id->typ, id->value, delta, delta->pos[0],
+      delta->pos[1]);
   GLuint texture;
   if (textures.find(*id) != textures.end()) {
+    Log("texture %lu exists", id->value);
     texture = textures.at(*id);
   } else {
+    Log("create texture %lu", id->value);
     glGenTextures(1, &texture);
     textures.insert(std::pair(*id, texture));
   }
   glBindTexture(GL_TEXTURE_2D, texture);
-  upload_texture_srgb(delta->pos_valid ? delta->pos : nullptr, delta->image.size, &delta->option, delta->image.pixels,
-                      delta->image.len);
+  upload_texture_srgb(delta);
   Log("set_texture done");
 }
 
