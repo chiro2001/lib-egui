@@ -1,4 +1,4 @@
-use crate::painter::EguiPainter;
+use crate::painter::{EguiImageDelta, EguiPainter, EguiTextureId};
 use crate::state::EguiStateHandler;
 use crate::utils::egui_cast;
 use egui::{ClippedPrimitive, TexturesDelta};
@@ -36,7 +36,17 @@ impl Egui {
     pub fn paint(&self, textures_delta: &TexturesDelta, primitives: Vec<ClippedPrimitive>) {
         let painter = self.painter.lock().unwrap();
         for (id, image_delta) in &textures_delta.set {
-            (painter.set_texture)(&id.into(), &image_delta.into());
+            let id: EguiTextureId = id.into();
+            let image_delta: EguiImageDelta = image_delta.into();
+            info!(
+                "set_texture(id@{:x}=({}, {}), delta@{:x}=(pos={:?}))",
+                &id as *const _ as u64,
+                id.typ,
+                id.value,
+                &image_delta as *const _ as u64,
+                image_delta.pos
+            );
+            (painter.set_texture)(&id, &image_delta);
         }
         for primitive in primitives.into_iter() {
             painter.paint_primitive(primitive);

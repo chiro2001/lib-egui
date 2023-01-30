@@ -106,7 +106,7 @@ void after_handler() {
 std::map<EguiTextureId, GLuint> textures = {};
 
 void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
-  Log("set_texture(id={%d, %lu}, delta={pos=[%zu, %zx]})", id->typ, id->value, delta->pos[0], delta->pos[1]);
+  Log("set_texture(id@%p={%d, %lu}, delta@%p={pos=[%zu, %zx]})", id, id->typ, id->value, delta, delta->pos[0], delta->pos[1]);
   GLuint texture;
   if (textures.find(*id) != textures.end()) {
     texture = textures.at(*id);

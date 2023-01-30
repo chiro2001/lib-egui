@@ -29,6 +29,7 @@ pub type PainterMeshHandler = extern "C" fn(
 
 pub type PainterBeforeHandler = extern "C" fn() -> bool;
 pub type PainterVoidHandler = extern "C" fn() -> ();
+#[repr(C, align(1))]
 pub struct EguiTextureId {
     pub typ: u8,
     pub value: u64,
@@ -49,6 +50,7 @@ impl From<&TextureId> for EguiTextureId {
 }
 pub const EGUI_TEXTURE_ID_MANAGED: u8 = 0;
 pub const EGUI_TEXTURE_ID_USER: u8 = 1;
+#[repr(C, align(1))]
 pub struct EguiImageData {
     /// must be color image
     // pub typ: u8,
@@ -87,6 +89,7 @@ pub const EGUI_IMAGE_DATA_FONT: u8 = 1;
 
 pub const EGUI_TEXTURE_FILTER_NEAREST: u8 = 0;
 pub const EGUI_TEXTURE_FILTER_LINEAR: u8 = 1;
+#[repr(C, align(1))]
 pub struct EguiTextureOptions {
     pub magnification: u8,
     pub minification: u8,
@@ -105,6 +108,7 @@ impl From<&TextureOptions> for EguiTextureOptions {
         }
     }
 }
+#[repr(C, align(1))]
 pub struct EguiImageDelta {
     pub image: EguiImageData,
     pub options: EguiTextureOptions,
