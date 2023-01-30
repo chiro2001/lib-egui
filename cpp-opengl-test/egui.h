@@ -79,11 +79,11 @@ typedef void *Egui;
 
 void call_void(void (*)());
 
-Egui egui_create(BeforeHandler
-                 beforeHandler, MeshHandler meshHandler, AfterHandler
-                 afterHandler,
-                 SetTextureHandler setTextHandler, FreeTextureHandler
-                 freeTextureHandler);
+Egui egui_create(BeforeHandler beforeHandler,
+                 MeshHandler meshHandler,
+                 AfterHandler afterHandler,
+                 SetTextureHandler setTextHandler,
+                 FreeTextureHandler freeTextureHandler);
 void egui_run(Egui egui);
 void egui_run_block(Egui egui);
 void egui_quit(Egui egui);

@@ -1,5 +1,6 @@
 use egui::epaint::{ImageDelta, Primitive, Vertex};
 use egui::{ClippedPrimitive, ImageData, TextureFilter, TextureId, TextureOptions};
+use tracing::info;
 
 pub type PainterMeshHandler32 = extern "C" fn(
     min_x: f32,
@@ -149,6 +150,14 @@ impl EguiPainter {
         set_texture: SetTextureHandler,
         free_texture: FreeTextureHandler,
     ) -> Self {
+        info!(
+            "new painter with: {:x}, {:x}, {:x}, {:x}, {:x}",
+            before_handler as u64,
+            mesh_handler as u64,
+            after_handler as u64,
+            set_texture as u64,
+            free_texture as u64
+        );
         Self {
             before_handler,
             mesh_handler,
@@ -167,16 +176,16 @@ impl EguiPainter {
                     let vertices_len = mesh.vertices.len();
                     // info!("indices: {:?}", mesh.indices);
                     // info!("vertices: {:?}", mesh.vertices);
-                    let mut points = Vec::with_capacity(mesh.vertices.len() * 2);
-                    let mut uvs = Vec::with_capacity(mesh.vertices.len() * 2);
-                    let mut colors = Vec::with_capacity(mesh.vertices.len());
-                    for v in &mesh.vertices {
-                        points.push(v.pos.x);
-                        points.push(v.pos.y);
-                        uvs.push(v.uv.x);
-                        uvs.push(v.uv.y);
-                        colors.push(u32::from_be_bytes(v.color.to_array()));
-                    }
+                    // let mut points = Vec::with_capacity(mesh.vertices.len() * 2);
+                    // let mut uvs = Vec::with_capacity(mesh.vertices.len() * 2);
+                    // let mut colors = Vec::with_capacity(mesh.vertices.len());
+                    // for v in &mesh.vertices {
+                    //     points.push(v.pos.x);
+                    //     points.push(v.pos.y);
+                    //     uvs.push(v.uv.x);
+                    //     uvs.push(v.uv.y);
+                    //     colors.push(u32::from_be_bytes(v.color.to_array()));
+                    // }
                     // info!("points: {:?}", points);
                     // info!("uvs: {:?}", uvs);
                     // info!("colors: {:?}", colors);

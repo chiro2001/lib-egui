@@ -35,25 +35,30 @@ impl Egui {
     }
     pub fn paint(&self, textures_delta: &TexturesDelta, primitives: Vec<ClippedPrimitive>) {
         let painter = self.painter.lock().unwrap();
-        for (id, image_delta) in &textures_delta.set {
-            let id: EguiTextureId = id.into();
-            let image_delta: EguiImageDelta = image_delta.into();
-            info!(
-                "set_texture(id@{:x}=({}, {}), delta@{:x}=(pos={:?}))",
-                &id as *const _ as u64,
-                id.typ,
-                id.value,
-                &image_delta as *const _ as u64,
-                image_delta.pos
-            );
-            (painter.set_texture)(&id, &image_delta);
-        }
+        // for (id, image_delta) in &textures_delta.set {
+        //     let id: EguiTextureId = id.into();
+        //     let image_delta: EguiImageDelta = image_delta.into();
+        //     info!(
+        //         "set_texture(id@{:x}=({}, {}), delta@{:x}=(pos={:?}))",
+        //         &id as *const _ as u64,
+        //         id.typ,
+        //         id.value,
+        //         &image_delta as *const _ as u64,
+        //         image_delta.pos
+        //     );
+        //     info!("calling set_texture...");
+        //     (painter.set_texture)(&id, &image_delta);
+        //     info!("set_texture returns");
+        // }
+        trace!("before paint_primitive");
         for primitive in primitives.into_iter() {
             painter.paint_primitive(primitive);
         }
-        for id in &textures_delta.free {
-            (painter.free_texture)(&id.into());
-        }
+        // for id in &textures_delta.free {
+        //     info!("calling free_texture");
+        //     (painter.free_texture)(&id.into());
+        //     info!("free_texture returns");
+        // }
     }
 }
 
@@ -85,9 +90,10 @@ pub extern "C" fn egui_create(
 fn egui_running(ui: &mut Egui) {
     let ctx = egui::Context::default();
     info!("egui_running start");
+    let mut quit_done = ui.quit_done.lock().unwrap();
     loop {
         ui.frame_count += 1;
-        trace!("egui frame: {}", ui.frame_count);
+        info!("egui frame: {}", ui.frame_count);
         let start_time = Instant::now();
         let mut state = ui.state.lock().unwrap();
         state.input.time = Some(start_time.elapsed().as_secs_f64());
@@ -108,19 +114,20 @@ fn egui_running(ui: &mut Egui) {
         let output = ctx.end_frame();
         let shapes = output.shapes;
         let primitives = ctx.tessellate(shapes);
+        trace!("before paint()");
         ui.paint(&full_output.textures_delta, primitives);
+        trace!("after paint()");
 
         // TODO: full_output.platform_output
 
-        // sleep(Duration::from_millis(100));
-        sleep(Duration::from_millis(1));
+        sleep(Duration::from_millis(100));
+        // sleep(Duration::from_millis(1));
         let quit = ui.quit.lock().unwrap();
         if *quit {
             info!("egui_running will quit!");
             break;
         }
     }
-    let mut quit_done = ui.quit_done.lock().unwrap();
     *quit_done = true;
     info!("egui_running quit");
 }
