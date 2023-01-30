@@ -46,8 +46,8 @@ void upload_texture_srgb(const EguiImageDelta *delta) {
     int border = 0;
     glTexImage2D(GL_TEXTURE_2D, level, internal_format, w, h, border, src_format, GL_UNSIGNED_BYTE,
                  delta->image.pixels);
-    report_gl_error(__FUNCTION__);
   }
+  report_gl_error(__FUNCTION__);
 }
 
 bool before_handler() {
@@ -107,9 +107,9 @@ void after_handler() {
 std::map<EguiTextureId, GLuint> textures = {};
 
 void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
-  Log("set_texture(id@%p={%d, %lu}, delta@%p={pos=[%zu, %zx], len=%zu, valid=%d})",
-      id, id->typ, id->value, delta, delta->pos[0],
-      delta->pos[1], delta->image.len, delta->pos_valid);
+  Log("set_texture(id@%p={%d, %lu}, delta@%p={size=[%zu, %zx], len=%zu, valid=%d})",
+      id, id->typ, id->value, delta, delta->image.size[0],
+      delta->image.size[1], delta->image.len, delta->pos_valid);
   GLuint texture;
   if (textures.find(*id) != textures.end()) {
     Log("texture %lu exists", id->value);
