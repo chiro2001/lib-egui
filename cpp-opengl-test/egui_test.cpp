@@ -10,6 +10,7 @@
 #include "gls.h"
 #include "debug_macros.h"
 #include "Shader.h"
+#include "utils.h"
 
 Egui egui;
 GLuint program;
@@ -25,7 +26,9 @@ void void_call_handler() {
 
 void upload_texture_srgb(const EguiImageDelta *delta) {
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, EguiTextureOptions::code(delta->option.magnification));
+  report_gl_error("setting parameters: GL_TEXTURE_MAG_FILTER");
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, EguiTextureOptions::code(delta->option.minification));
+  report_gl_error("setting parameters: GL_TEXTURE_MIN_FILTER");
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -43,12 +46,13 @@ void upload_texture_srgb(const EguiImageDelta *delta) {
     int border = 0;
     glTexImage2D(GL_TEXTURE_2D, level, internal_format, w, h, border, src_format, GL_UNSIGNED_BYTE,
                  delta->image.pixels);
+    report_gl_error(__FUNCTION__);
   }
 }
 
 bool before_handler() {
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
-  // glClearColor(0.2f, 0.3f, 0.4f, 1.0f); // Set background color to black and opaque
+  // glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
+  glClearColor(0.2f, 0.3f, 0.4f, 1.0f); // Set background color to black and opaque
   glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
   return true;
 
@@ -103,8 +107,9 @@ void after_handler() {
 std::map<EguiTextureId, GLuint> textures = {};
 
 void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
-  Log("set_texture(id@%p={%d, %lu}, delta@%p={pos=[%zu, %zx]})", id, id->typ, id->value, delta, delta->pos[0],
-      delta->pos[1]);
+  Log("set_texture(id@%p={%d, %lu}, delta@%p={pos=[%zu, %zx], len=%zu, valid=%d})",
+      id, id->typ, id->value, delta, delta->pos[0],
+      delta->pos[1], delta->image.len, delta->pos_valid);
   GLuint texture;
   if (textures.find(*id) != textures.end()) {
     Log("texture %lu exists", id->value);
@@ -112,9 +117,11 @@ void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
   } else {
     Log("create texture %lu", id->value);
     glGenTextures(1, &texture);
+    report_gl_error("gen texture");
     textures.insert(std::pair(*id, texture));
   }
   glBindTexture(GL_TEXTURE_2D, texture);
+  report_gl_error("bind texture");
   upload_texture_srgb(delta);
   Log("set_texture done");
 }
@@ -133,10 +140,14 @@ void display() {}
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);                 // Initialize GLUT
+  report_gl_error("glut init");
   glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA);
+  report_gl_error("glut display mode");
   glutInitWindowSize(screen_width, screen_height);   // Set the window's initial width & height
+  report_gl_error("glut window size");
   // glutInitWindowPosition(50, 50); // Position the window's initial top-left corner
   glutCreateWindow("OpenGL Mesh Test"); // Create a window with the given title
+  report_gl_error("glut create window");
 
   // disable stdio buffer
   setvbuf(stdout, nullptr, _IONBF, 0);
@@ -148,7 +159,7 @@ int main(int argc, char **argv) {
   // auto shader = Shader("egui");
   // auto shader = Shader("mesh_test");
   program = shader.program;
-  // glUseProgram(program);
+  glUseProgram(program);
 
   // init args locations
   a_pos = glGetAttribLocation(program, "a_pos");
@@ -162,16 +173,20 @@ int main(int argc, char **argv) {
   GLint screen_size = glGetUniformLocation(program, "u_screen_size");
   Assert(screen_size >= 0, "Cannot locate screen_size");
   glUniform2f(screen_size, (float) (screen_width), (float) (screen_height));
+  report_gl_error("gl uniform: screen_size");
   GLint sampler = glGetUniformLocation(program, "u_sampler");
   Assert(sampler >= 0, "Cannot locate sampler");
   glUniform1i(sampler, 0);
+  report_gl_error("gl uniform: sampler");
   glViewport(0, 0, screen_width, screen_height);
+  report_gl_error("gl view port");
 
   call_void(void_call_handler);
   Log("egui_create(%p, %p, %p, %p, %p)", before_handler, mesh_handler, after_handler, set_texture, free_texture);
   egui = egui_create(before_handler, mesh_handler, after_handler, set_texture, free_texture);
 
   glutDisplayFunc(display);
+  report_gl_error("main before loop");
   egui_run_block(egui);
 
   // egui_run(egui);

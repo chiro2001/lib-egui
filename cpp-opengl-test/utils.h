@@ -8,5 +8,6 @@
 #include <string>
 
 bool file_exists(const std::string &filename);
+void report_gl_error(const char *msg);
 
 #endif //CPP_OPENGL_TEST_UTILS_H
