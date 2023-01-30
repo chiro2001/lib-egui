@@ -5,6 +5,8 @@
 #ifndef EGUI_H
 #define EGUI_H
 
+#include "gls.h"
+
 #ifdef __cplusplus
 
 #include <cstdint>
@@ -50,6 +52,11 @@ class EguiTextureOptions {
 public:
   EguiTextureFilter magnification;
   EguiTextureFilter minification;
+
+  static inline GLint code(EguiTextureFilter i) {
+    if (i == Linear) return GL_LINEAR;
+    else return GL_NEAREST;
+  }
 };
 static_assert(sizeof(EguiTextureFilter) == 4);
 class EguiImageDelta {

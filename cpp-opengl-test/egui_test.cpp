@@ -29,6 +29,24 @@ void upload_texture_srgb(
     const EguiTextureOptions *options,
     const uint8_t *data,
     const size_t length) {
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, EguiTextureOptions::code(options->magnification));
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, EguiTextureOptions::code(options->minification));
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  int level = 0;
+  int w = (int) rect[0];
+  int h = (int) rect[1];
+  GLint internal_format = GL_RGBA8;
+  GLint src_format = GL_RGBA;
+  if (pos != nullptr) {
+    int x = (int) pos[0];
+    int y = (int) pos[1];
+    glTexSubImage2D(GL_TEXTURE_2D, level, x, y, w, h, src_format, GL_UNSIGNED_BYTE, data);
+  } else {
+    int border = 0;
+    glTexImage2D(GL_TEXTURE_2D, level, internal_format, w, h, border, src_format, GL_UNSIGNED_BYTE, data);
+  }
 }
 
 bool before_handler() {
@@ -88,6 +106,7 @@ void after_handler() {
 std::map<EguiTextureId, GLuint> textures = {};
 
 void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
+  Log("set_texture(id={%d, %lu}, delta={pos=[%zu, %zx]})", id->typ, id->value, delta->pos[0], delta->pos[1]);
   GLuint texture;
   if (textures.find(*id) != textures.end()) {
     texture = textures.at(*id);
@@ -96,10 +115,18 @@ void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
     textures.insert(std::pair(*id, texture));
   }
   glBindTexture(GL_TEXTURE_2D, texture);
-  upload_texture_srgb(delta->pos, delta->image.size, &delta->option, delta->image.pixels, delta->image.len);
+  upload_texture_srgb(delta->pos_valid ? delta->pos : nullptr, delta->image.size, &delta->option, delta->image.pixels,
+                      delta->image.len);
 }
 
-void free_texture(const EguiTextureId *id) {}
+void free_texture(const EguiTextureId *id) {
+  Log("free_texture");
+  if (textures.find(*id) != textures.end()) {
+    GLuint texture = textures.at(*id);
+    glDeleteTextures(1, &texture);
+    textures.erase(*id);
+  }
+}
 
 void display() {}
 
