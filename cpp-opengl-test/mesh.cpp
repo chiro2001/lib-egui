@@ -41,7 +41,7 @@ void display() {
   // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
   //                       reinterpret_cast<const void *>(3 * sizeof(GLfloat)));
   // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[1]);
-  // draw as vbo
+  // draw as vao
   glBindVertexArray(vao);
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
 

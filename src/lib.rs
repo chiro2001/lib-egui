@@ -1,11 +1,11 @@
 use crate::painter::{EguiPainter, PainterBeforeHandler, PainterMeshHandler, PainterVoidHandler};
 use crate::state::EguiStateHandler;
 use crate::utils::egui_cast;
+use egui::{ClippedPrimitive, TexturesDelta};
 use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use std::thread::sleep;
 use std::time::{Duration, Instant};
-use egui::{ClippedPrimitive, TexturesDelta};
 use tracing::{debug, info, trace};
 
 mod basic;
@@ -44,14 +44,24 @@ impl Egui {
 }
 
 #[no_mangle]
-pub extern "C" fn egui_create(before: *const (), mesh: *const (), after: *const ()) -> *const Egui {
+pub extern "C" fn egui_create(
+    before: *const (),
+    mesh: *const (),
+    after: *const (),
+    set_texture: *const (),
+    free_texture: *const (),
+) -> *const Egui {
     tracing_subscriber::fmt::init();
     debug!("creating(handler: {:?})...", mesh);
-    let before: PainterBeforeHandler = unsafe { std::mem::transmute(before) };
-    let mesh: PainterMeshHandler = unsafe { std::mem::transmute(mesh) };
-    let after: PainterVoidHandler = unsafe { std::mem::transmute(after) };
-    // let e = &Egui::new(handler);
-    let painter = EguiPainter::new(before, mesh, after);
+    let painter = unsafe {
+        EguiPainter::new(
+            std::mem::transmute(before),
+            std::mem::transmute(mesh),
+            std::mem::transmute(after),
+            std::mem::transmute(set_texture),
+            std::mem::transmute(free_texture),
+        )
+    };
     let e = Box::new(Egui::new(painter));
     let e = Box::leak(e);
     debug!("return instance at: {:?}", e as *const Egui);
@@ -87,6 +97,7 @@ fn egui_running(ui: &mut Egui) {
         ui.paint(&full_output.textures_delta, primitives);
 
         // TODO: full_output.platform_output
+        // https://github.com/emilk/egui/blob/master/crates/egui_glow/src/shader/vertex.glsl
 
         // sleep(Duration::from_millis(100));
         sleep(Duration::from_millis(1));

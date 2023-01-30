@@ -29,12 +29,44 @@ pub type PainterMeshHandler = extern "C" fn(
 
 pub type PainterBeforeHandler = extern "C" fn() -> bool;
 pub type PainterVoidHandler = extern "C" fn() -> ();
+pub struct EguiTextureId {
+    pub typ: u8,
+    pub value: u64,
+}
+pub const EGUI_TEXTURE_ID_MANAGED: u8 = 0;
+pub const EGUI_TEXTURE_ID_USER: u8 = 1;
+pub struct EguiImageData {
+    /// must be color image
+    // pub typ: u8,
+    pub size: [usize; 2],
+    pub pixels: *const u8,
+    pub len: usize,
+}
+pub const EGUI_IMAGE_DATA_COLOR: u8 = 0;
+pub const EGUI_IMAGE_DATA_FONT: u8 = 1;
+
+pub const EGUI_TEXTURE_FILTER_NEAREST: u8 = 0;
+pub const EGUI_TEXTURE_FILTER_LINEAR: u8 = 1;
+pub struct EguiTextureOptions {
+    pub magnification: u8,
+    pub minification: u8,
+}
+pub struct EguiImageDelta {
+    pub image: EguiImageData,
+    pub options: EguiTextureOptions,
+    pub pos: [usize; 2],
+    pub pos_valid: bool,
+}
+pub type SetTextureHandler = extern "C" fn(*const EguiTextureId, *const EguiImageDelta) -> ();
+pub type FreeTextureHandler = extern "C" fn(*const EguiTextureId) -> ();
 
 #[derive(Debug)]
 pub struct EguiPainter {
     pub(crate) before_handler: PainterBeforeHandler,
     pub(crate) mesh_handler: PainterMeshHandler,
     pub(crate) after_handler: PainterVoidHandler,
+    pub(crate) set_texture: SetTextureHandler,
+    pub(crate) free_texture: FreeTextureHandler,
     pub(crate) pixels_per_point: f32,
 }
 
@@ -43,11 +75,15 @@ impl EguiPainter {
         before_handler: PainterBeforeHandler,
         mesh_handler: PainterMeshHandler,
         after_handler: PainterVoidHandler,
+        set_texture: SetTextureHandler,
+        free_texture: FreeTextureHandler
     ) -> Self {
         Self {
             before_handler,
             mesh_handler,
             after_handler,
+            set_texture,
+            free_texture,
             pixels_per_point: 1.0,
         }
     }

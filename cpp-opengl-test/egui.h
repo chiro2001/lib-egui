@@ -25,6 +25,18 @@ typedef struct {
   uint32_t color;
 } Vertex;
 
+enum TextureFilter {
+  Nearest = 0,
+  Linear = 1,
+};
+
+typedef struct {
+  TextureFilter magnification;
+  TextureFilter minification;
+} TextureOptions;
+
+static_assert(sizeof(TextureFilter) == 4);
+
 typedef bool (*BeforeHandler)();
 typedef void (*MeshHandler)(float, float, float, float, const uint16_t *, size_t, const Vertex *, size_t, bool,
                             uint64_t);

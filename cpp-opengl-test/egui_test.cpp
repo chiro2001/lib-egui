@@ -22,6 +22,10 @@ void void_call_handler() {
   Log("void_call_handler() called, test pass.");
 }
 
+void upload_texture_srgb(size_t *pos, size_t *rect, TextureOptions *options, uint8_t *data, size_t length) {
+  
+}
+
 bool before_handler() {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
   // glClearColor(0.2f, 0.3f, 0.4f, 1.0f); // Set background color to black and opaque
@@ -90,7 +94,8 @@ int main(int argc, char **argv) {
   Log("opengl version: %s", glGetString(GL_VERSION));
   Log("sizeof(Vertex) = %lu", sizeof(Vertex));
 
-  auto shader = Shader("egui_150");
+  // auto shader = Shader("egui_150");
+  auto shader = Shader("glow");
   // auto shader = Shader("egui");
   // auto shader = Shader("mesh_test");
   program = shader.program;
