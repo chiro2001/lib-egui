@@ -41,6 +41,7 @@ link_libraries(debug_macros)
 set(PROJECT_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/Shader.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/utils.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/egui.cpp
         )
 
 add_executable(cpp_opengl_test main.cpp ${PROJECT_SOURCES})

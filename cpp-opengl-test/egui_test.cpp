@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include <chrono>
+#include <map>
 #include <fmt/format.h>
 #include "egui.h"
 #include "gls.h"
@@ -22,8 +23,12 @@ void void_call_handler() {
   Log("void_call_handler() called, test pass.");
 }
 
-void upload_texture_srgb(size_t *pos, size_t *rect, TextureOptions *options, uint8_t *data, size_t length) {
-  
+void upload_texture_srgb(
+    const size_t *pos,
+    const size_t *rect,
+    const EguiTextureOptions *options,
+    const uint8_t *data,
+    const size_t length) {
 }
 
 bool before_handler() {
@@ -80,6 +85,22 @@ void after_handler() {
   }
 }
 
+std::map<EguiTextureId, GLuint> textures = {};
+
+void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
+  GLuint texture;
+  if (textures.find(*id) != textures.end()) {
+    texture = textures.at(*id);
+  } else {
+    glGenTextures(1, &texture);
+    textures.insert(std::pair(*id, texture));
+  }
+  glBindTexture(GL_TEXTURE_2D, texture);
+  upload_texture_srgb(delta->pos, delta->image.size, &delta->option, delta->image.pixels, delta->image.len);
+}
+
+void free_texture(const EguiTextureId *id) {}
+
 void display() {}
 
 int main(int argc, char **argv) {
@@ -119,7 +140,7 @@ int main(int argc, char **argv) {
   glViewport(0, 0, screen_width, screen_height);
 
   call_void(void_call_handler);
-  egui = egui_create(before_handler, mesh_handler, after_handler);
+  egui = egui_create(before_handler, mesh_handler, after_handler, set_texture, free_texture);
 
   glutDisplayFunc(display);
   egui_run_block(egui);
