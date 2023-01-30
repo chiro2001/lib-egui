@@ -35,30 +35,30 @@ impl Egui {
     }
     pub fn paint(&self, textures_delta: &TexturesDelta, primitives: Vec<ClippedPrimitive>) {
         let painter = self.painter.lock().unwrap();
-        // for (id, image_delta) in &textures_delta.set {
-        //     let id: EguiTextureId = id.into();
-        //     let image_delta: EguiImageDelta = image_delta.into();
-        //     info!(
-        //         "set_texture(id@{:x}=({}, {}), delta@{:x}=(pos={:?}))",
-        //         &id as *const _ as u64,
-        //         id.typ,
-        //         id.value,
-        //         &image_delta as *const _ as u64,
-        //         image_delta.pos
-        //     );
-        //     info!("calling set_texture...");
-        //     (painter.set_texture)(&id, &image_delta);
-        //     info!("set_texture returns");
-        // }
+        for (id, image_delta) in &textures_delta.set {
+            let id: EguiTextureId = id.into();
+            let image_delta: EguiImageDelta = image_delta.into();
+            info!(
+                "set_texture(id@{:x}=({}, {}), delta@{:x}=(pos={:?}))",
+                &id as *const _ as u64,
+                id.typ,
+                id.value,
+                &image_delta as *const _ as u64,
+                image_delta.pos
+            );
+            info!("calling set_texture...");
+            (painter.set_texture)(&id, &image_delta);
+            info!("set_texture returns");
+        }
         trace!("before paint_primitive");
         for primitive in primitives.into_iter() {
             painter.paint_primitive(primitive);
         }
-        // for id in &textures_delta.free {
-        //     info!("calling free_texture");
-        //     (painter.free_texture)(&id.into());
-        //     info!("free_texture returns");
-        // }
+        for id in &textures_delta.free {
+            info!("calling free_texture");
+            (painter.free_texture)(&id.into());
+            info!("free_texture returns");
+        }
     }
 }
 

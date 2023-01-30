@@ -107,26 +107,26 @@ std::map<EguiTextureId, GLuint> textures = {};
 
 void set_texture(const EguiTextureId *id, const EguiImageDelta *delta) {
   Log("set_texture(id@%p={%d, %lu}, delta@%p={pos=[%zu, %zx]})", id, id->typ, id->value, delta, delta->pos[0], delta->pos[1]);
-  // GLuint texture;
-  // if (textures.find(*id) != textures.end()) {
-  //   texture = textures.at(*id);
-  // } else {
-  //   glGenTextures(1, &texture);
-  //   textures.insert(std::pair(*id, texture));
-  // }
-  // glBindTexture(GL_TEXTURE_2D, texture);
-  // upload_texture_srgb(delta->pos_valid ? delta->pos : nullptr, delta->image.size, &delta->option, delta->image.pixels,
-  //                     delta->image.len);
+  GLuint texture;
+  if (textures.find(*id) != textures.end()) {
+    texture = textures.at(*id);
+  } else {
+    glGenTextures(1, &texture);
+    textures.insert(std::pair(*id, texture));
+  }
+  glBindTexture(GL_TEXTURE_2D, texture);
+  upload_texture_srgb(delta->pos_valid ? delta->pos : nullptr, delta->image.size, &delta->option, delta->image.pixels,
+                      delta->image.len);
   Log("set_texture done");
 }
 
 void free_texture(const EguiTextureId *id) {
   Log("free_texture");
-  // if (textures.find(*id) != textures.end()) {
-  //   GLuint texture = textures.at(*id);
-  //   glDeleteTextures(1, &texture);
-  //   textures.erase(*id);
-  // }
+  if (textures.find(*id) != textures.end()) {
+    GLuint texture = textures.at(*id);
+    glDeleteTextures(1, &texture);
+    textures.erase(*id);
+  }
   Log("free_texture done");
 }
 
