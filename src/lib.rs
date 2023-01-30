@@ -93,11 +93,11 @@ fn egui_running(ui: &mut Egui) {
     let mut quit_done = ui.quit_done.lock().unwrap();
     loop {
         ui.frame_count += 1;
-        info!("egui frame: {}", ui.frame_count);
+        trace!("egui frame: {}", ui.frame_count);
         let start_time = Instant::now();
         let mut state = ui.state.lock().unwrap();
         state.input.time = Some(start_time.elapsed().as_secs_f64());
-        ctx.begin_frame(state.input.take());
+        // ctx.begin_frame(state.input.take());
 
         let full_output = ctx.run(state.input.clone(), |ctx| {
             egui::CentralPanel::default().show(&ctx, |ui| {
@@ -111,9 +111,10 @@ fn egui_running(ui: &mut Egui) {
             });
         });
 
-        let output = ctx.end_frame();
-        let shapes = output.shapes;
-        let primitives = ctx.tessellate(shapes);
+        // let output = ctx.end_frame();
+        // let shapes = output.shapes;
+        // let primitives = ctx.tessellate(shapes);
+        let primitives = ctx.tessellate(full_output.shapes);
         trace!("before paint()");
         ui.paint(&full_output.textures_delta, primitives);
         trace!("after paint()");

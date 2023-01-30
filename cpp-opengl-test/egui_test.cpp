@@ -50,7 +50,6 @@ void upload_texture_srgb(
 }
 
 bool before_handler() {
-  Log("before_handler");
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f); // Set background color to black and opaque
   // glClearColor(0.2f, 0.3f, 0.4f, 1.0f); // Set background color to black and opaque
   glClear(GL_COLOR_BUFFER_BIT);         // Clear the color buffer
