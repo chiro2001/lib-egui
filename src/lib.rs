@@ -1,4 +1,4 @@
-use crate::painter::{EguiPainter, PainterBeforeHandler, PainterMeshHandler, PainterVoidHandler};
+use crate::painter::EguiPainter;
 use crate::state::EguiStateHandler;
 use crate::utils::egui_cast;
 use egui::{ClippedPrimitive, TexturesDelta};
@@ -33,12 +33,16 @@ impl Egui {
             frame_count: 0,
         }
     }
-    pub fn paint(&self, texture_delta: &TexturesDelta, primitives: Vec<ClippedPrimitive>) {
-        {
-            let painter = self.painter.lock().unwrap();
-            for primitive in primitives.into_iter() {
-                painter.paint_primitive(primitive);
-            }
+    pub fn paint(&self, textures_delta: &TexturesDelta, primitives: Vec<ClippedPrimitive>) {
+        let painter = self.painter.lock().unwrap();
+        for (id, image_delta) in &textures_delta.set {
+            (painter.set_texture)(&id.into(), &image_delta.into());
+        }
+        for primitive in primitives.into_iter() {
+            painter.paint_primitive(primitive);
+        }
+        for id in &textures_delta.free {
+            (painter.free_texture)(&id.into());
         }
     }
 }
@@ -97,7 +101,6 @@ fn egui_running(ui: &mut Egui) {
         ui.paint(&full_output.textures_delta, primitives);
 
         // TODO: full_output.platform_output
-        // https://github.com/emilk/egui/blob/master/crates/egui_glow/src/shader/vertex.glsl
 
         // sleep(Duration::from_millis(100));
         sleep(Duration::from_millis(1));

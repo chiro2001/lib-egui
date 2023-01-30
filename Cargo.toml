@@ -6,7 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-egui = "0.20.1"
+bytemuck = "1.13.0"
+egui = { version = "0.20.1", features = ["bytemuck"] }
 futures = "0.3.25"
 tracing = "0.1.37"
 tracing-subscriber = "0.3.16"
