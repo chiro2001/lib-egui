@@ -1,2 +1,4 @@
 # lib-egui
-integrate egui as a library
+Integrate egui as a library.
+
+🚧Temporarily unavailable.🚧
